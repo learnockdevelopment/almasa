@@ -1,0 +1,62 @@
+{
+  "project_info": {
+    "project_number": "186645707534",
+    "project_id": "elmasa-502219",
+    "storage_bucket": "elmasa-502219.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:186645707534:android:bfa674dec3e6cc111f755f",
+        "android_client_info": {
+          "package_name": "com.elprofvirus.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "186645707534-501hj7cjedfjfbntemfnb57qnv6ga1ea.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.elprofvirus.app",
+            "certificate_hash": "add0d3c4f583f627b12b4cd8d682665d1a3287d3"
+          }
+        },
+        {
+          "client_id": "186645707534-9qgilpugivvmqbrqm8ofmpu613626d19.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.elprofvirus.app",
+            "certificate_hash": "55aa69b3facd8b29215b345c3d35f9a8bb500abc"
+          }
+        },
+        {
+          "client_id": "186645707534-jmpjnjh04r5h743kklvlj2dmt3q7oll8.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCTWdtg1ms3i6jmBKDCRVp0dDjIpxHgoA0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "186645707534-jmpjnjh04r5h743kklvlj2dmt3q7oll8.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "186645707534-eqsldonr1m4mis7fv8u87vh47vbhie29.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.elprofvirus.app"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
