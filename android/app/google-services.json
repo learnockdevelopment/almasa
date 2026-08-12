@@ -1,56 +1,100 @@
 {
   "project_info": {
-    "project_number": "186645707534",
-    "project_id": "elmasa-502219",
-    "storage_bucket": "elmasa-502219.firebasestorage.app"
+    "project_number": "332049197085",
+    "project_id": "mediation-elprofessor",
+    "storage_bucket": "mediation-elprofessor.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:186645707534:android:bfa674dec3e6cc111f755f",
+        "mobilesdk_app_id": "1:332049197085:android:80f3a2cd574ffe906ffef4",
         "android_client_info": {
           "package_name": "com.elprofvirus.app"
         }
       },
       "oauth_client": [
         {
-          "client_id": "186645707534-501hj7cjedfjfbntemfnb57qnv6ga1ea.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.elprofvirus.app",
-            "certificate_hash": "add0d3c4f583f627b12b4cd8d682665d1a3287d3"
-          }
-        },
-        {
-          "client_id": "186645707534-9qgilpugivvmqbrqm8ofmpu613626d19.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.elprofvirus.app",
-            "certificate_hash": "55aa69b3facd8b29215b345c3d35f9a8bb500abc"
-          }
-        },
-        {
-          "client_id": "186645707534-jmpjnjh04r5h743kklvlj2dmt3q7oll8.apps.googleusercontent.com",
+          "client_id": "332049197085-ct3rrfp2fr85n20ma4kfas7pa0bq19t5.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyCTWdtg1ms3i6jmBKDCRVp0dDjIpxHgoA0"
+          "current_key": "AIzaSyDOiRrCo2PcREHoiWubYTiNDXfemLShntg"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "186645707534-jmpjnjh04r5h743kklvlj2dmt3q7oll8.apps.googleusercontent.com",
+              "client_id": "332049197085-ct3rrfp2fr85n20ma4kfas7pa0bq19t5.apps.googleusercontent.com",
               "client_type": 3
             },
             {
-              "client_id": "186645707534-eqsldonr1m4mis7fv8u87vh47vbhie29.apps.googleusercontent.com",
+              "client_id": "332049197085-qfqsdmj951kn6kidca0qrtjbfi88oucn.apps.googleusercontent.com",
               "client_type": 2,
               "ios_info": {
-                "bundle_id": "com.elprofvirus.app"
+                "bundle_id": "com.learnockapp2.app"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:332049197085:android:5adca13825eb5e7a6ffef4",
+        "android_client_info": {
+          "package_name": "com.learnockapp2.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "332049197085-bepvs67g0d6vbu2bsfgcqn5vq2bv5205.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.learnockapp2.app",
+            "certificate_hash": "cd7b502cbb169f1ea0a7b9f65a964a7a51183726"
+          }
+        },
+        {
+          "client_id": "332049197085-fu37p8m719t2v074jdj74ca4kjrbb3pt.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.learnockapp2.app",
+            "certificate_hash": "ddbb60a6f9f6d7c1d17bff009014413cab074b62"
+          }
+        },
+        {
+          "client_id": "332049197085-j7eojsq24cf72ac6j773eq7nh8gcc8dp.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.learnockapp2.app",
+            "certificate_hash": "55aa69b3facd8b29215b345c3d35f9a8bb500abc"
+          }
+        },
+        {
+          "client_id": "332049197085-ct3rrfp2fr85n20ma4kfas7pa0bq19t5.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDOiRrCo2PcREHoiWubYTiNDXfemLShntg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "332049197085-ct3rrfp2fr85n20ma4kfas7pa0bq19t5.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "332049197085-qfqsdmj951kn6kidca0qrtjbfi88oucn.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.learnockapp2.app"
               }
             }
           ]

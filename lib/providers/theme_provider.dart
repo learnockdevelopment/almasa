@@ -54,20 +54,47 @@ class ThemeProvider extends ChangeNotifier {
   }
 
   static Color parseColorString(String? colorStr) {
-    if (colorStr == null || colorStr.isEmpty) return Colors.transparent;
+    if (colorStr == null || colorStr.trim().isEmpty) return Colors.transparent;
     
     String clean = colorStr.trim().toLowerCase();
+
+    // 1. Try HSL parsing (handles "hsl(150 60% 35%)", "hsl(150, 60%, 35%)", "150 60% 35%", etc.)
+    try {
+      final RegExp hslRegExp = RegExp(
+        r'^(?:hsla?\s*\(?\s*)?(\d+(?:\.\d+)?)(?:deg)?[\s,]+(\d+(?:\.\d+)?)\s*%?[\s,]+(\d+(?:\.\d+)?)\s*%?(?:[\s,/]+(\d+(?:\.\d+)?))?\s*\)?$'
+      );
+      final match = hslRegExp.firstMatch(clean);
+      if (match != null) {
+        double h = double.parse(match.group(1)!);
+        double s = double.parse(match.group(2)!);
+        double l = double.parse(match.group(3)!);
+        double a = match.group(4) != null ? double.parse(match.group(4)!) : 1.0;
+        
+        h = h % 360;
+        if (h < 0) h += 360;
+        s = s.clamp(0.0, 100.0);
+        l = l.clamp(0.0, 100.0);
+        a = a.clamp(0.0, 1.0);
+
+        return HSLColor.fromAHSL(a, h, s / 100, l / 100).toColor();
+      }
+    } catch (e) {
+      debugPrint('⚠️ HSL parse exception for "$colorStr": $e');
+    }
     
-    if (clean.startsWith('hsl')) {
+    // 2. Try RGB/RGBA parsing
+    if (clean.contains('rgb')) {
       try {
-        final RegExp hslRegExp = RegExp(r'hsla?\s*\(\s*(\d+(?:\.\d+)?)\s*[, ]\s*(\d+(?:\.\d+)?)\s*%?\s*[, ]\s*(\d+(?:\.\d+)?)\s*%?\s*(?:[,/]\s*(\d+(?:\.\d+)?)\s*)?\)');
-        final match = hslRegExp.firstMatch(clean);
+        final RegExp rgbRegExp = RegExp(
+          r'rgba?\s*\(\s*(\d+)\s*[, ]\s*(\d+)\s*[, ]\s*(\d+)\s*(?:[,/]\s*(\d+(?:\.\d+)?)\s*)?\)'
+        );
+        final match = rgbRegExp.firstMatch(clean);
         if (match != null) {
-          double h = double.parse(match.group(1)!);
-          double s = double.parse(match.group(2)!);
-          double l = double.parse(match.group(3)!);
+          int r = int.parse(match.group(1)!);
+          int g = int.parse(match.group(2)!);
+          int b = int.parse(match.group(3)!);
           double a = match.group(4) != null ? double.parse(match.group(4)!) : 1.0;
-          return HSLColor.fromAHSL(a, h, s / 100, l / 100).toColor();
+          return Color.fromRGBO(r.clamp(0, 255), g.clamp(0, 255), b.clamp(0, 255), a.clamp(0.0, 1.0));
         }
       } catch (_) {}
     }
@@ -88,6 +115,37 @@ class ThemeProvider extends ChangeNotifier {
     }
   }
 
+  static Color? _getPresetThemeColor(String? themeName) {
+    if (themeName == null) return null;
+    switch (themeName.toLowerCase().trim()) {
+      case 'forest':
+        return fromHSL(150, 60, 35);
+      case 'emerald':
+        return fromHSL(160, 70, 40);
+      case 'ocean':
+      case 'blue':
+        return fromHSL(215, 85, 50);
+      case 'purple':
+      case 'violet':
+        return fromHSL(265, 80, 55);
+      case 'sunset':
+      case 'orange':
+        return fromHSL(25, 90, 50);
+      case 'crimson':
+      case 'red':
+      case 'rose':
+        return fromHSL(350, 80, 50);
+      case 'amber':
+      case 'gold':
+        return fromHSL(40, 90, 45);
+      case 'cyan':
+      case 'teal':
+        return fromHSL(180, 75, 40);
+      default:
+        return null;
+    }
+  }
+
   ThemeData _generateThemeData(bool isDark, String? themeName, String? themeColorHex) {
     Color primary;
     if (themeColorHex != null && themeColorHex.isNotEmpty) {
@@ -95,10 +153,10 @@ class ThemeProvider extends ChangeNotifier {
       if (parsed != Colors.transparent) {
         primary = parsed;
       } else {
-        primary = isDark ? fromHSL(230, 85, 60) : fromHSL(225, 80, 55);
+        primary = _getPresetThemeColor(themeName) ?? (isDark ? fromHSL(230, 85, 60) : fromHSL(225, 80, 55));
       }
     } else {
-      primary = isDark ? fromHSL(230, 85, 60) : fromHSL(225, 80, 55);
+      primary = _getPresetThemeColor(themeName) ?? (isDark ? fromHSL(230, 85, 60) : fromHSL(225, 80, 55));
     }
 
     Color scaffoldBg = isDark ? const Color(0xFF0F172A) : Colors.white; // Slate 900

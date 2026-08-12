@@ -197,20 +197,86 @@ class _RegisterScreenState extends State<RegisterScreen> {
         ));
       }
     } catch (e) {
-      debugPrint('❌ SEND OTP FAILED: $e');
-      if (mounted) {
-        showDialog(
-          context: context,
-          builder: (context) => _buildErrorPrompt(
-            context,
-            title: lang.translate('register_failed') ?? (isRTL ? 'فشل التسجيل' : 'Registration Failed'),
-            message: e.toString().replaceAll('Exception: ', ''),
-            icon: Icons.error_outline_rounded,
-          ),
-        );
+      debugPrint('❌ SEND OTP FAILED: $e. Attempting direct registration fallback...');
+      final errStr = e.toString().toLowerCase();
+      if (errStr.contains('404') || errStr.contains('405') || errStr.contains('not found') || errStr.contains('unsupported') || errStr.contains('format') || errStr.contains('server')) {
+        await _registerDirectly();
+      } else {
+        if (mounted) {
+          showDialog(
+            context: context,
+            builder: (context) => _buildErrorPrompt(
+              context,
+              title: lang.translate('register_failed') ?? (isRTL ? 'فشل التسجيل' : 'Registration Failed'),
+              message: e.toString().replaceAll('Exception: ', '').replaceAll('ServerException: ', ''),
+              icon: Icons.error_outline_rounded,
+            ),
+          );
+        }
       }
     } finally {
       if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _registerDirectly() async {
+    final lang = Provider.of<LanguageProvider>(context, listen: false);
+    final isRTL = lang.currentLocale.languageCode == 'ar';
+    final wp = Provider.of<WorkspaceProvider>(context, listen: false);
+
+    String cleanPhone = _phoneController.text.trim();
+    if (cleanPhone.startsWith('0')) {
+      cleanPhone = cleanPhone.substring(1);
+    }
+    final fullPhone = '${_selectedCountry?['code'] ?? ""}$cleanPhone';
+
+    try {
+      await wp.addWorkspaceRegister(
+        host: kSiteHost,
+        name: _nameController.text.trim(),
+        email: _userController.text.trim(),
+        password: _passController.text.trim(),
+        phone: fullPhone,
+        birthDate: _birthDateController.text.trim(),
+      );
+      debugPrint('✅ DIRECT REGISTER SUCCESS');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(lang.translate('registration_success') ?? (isRTL ? 'تم التسجيل بنجاح!' : 'Registration successful!')),
+            backgroundColor: Colors.green,
+          ),
+        );
+        Navigator.pushReplacementNamed(context, '/profile-setup', arguments: fullPhone);
+      }
+    } catch (e) {
+      debugPrint('❌ DIRECT REGISTER FAILED: $e');
+      if (mounted) {
+        final errStr = e.toString().toLowerCase();
+        if (e is DeviceMismatchException || errStr.contains('mismatch') || errStr.contains('linked to another device') || errStr.contains('disconnect the old device')) {
+          showDialog(
+            context: context,
+            builder: (context) => _buildErrorPrompt(
+              context,
+              title: isRTL ? 'تنبيه الأمان' : 'Security Alert',
+              message: isRTL 
+                  ? 'هذا الحساب مرتبط بجهاز آخر بالفعل. يرجى إلغاء ربط الجهاز القديم أولاً.'
+                  : 'This account is already linked to another device. Please disconnect the old device first.',
+              icon: Icons.phonelink_lock_rounded,
+            ),
+          );
+        } else {
+          showDialog(
+            context: context,
+            builder: (context) => _buildErrorPrompt(
+              context,
+              title: lang.translate('register_failed') ?? (isRTL ? 'فشل التسجيل' : 'Registration Failed'),
+              message: e.toString().replaceAll('Exception: ', '').replaceAll('ServerException: ', ''),
+              icon: Icons.error_outline_rounded,
+            ),
+          );
+        }
+      }
     }
   }
 
@@ -258,15 +324,30 @@ class _RegisterScreenState extends State<RegisterScreen> {
     } catch (e) {
       debugPrint('❌ OTP REGISTER FAILED: $e');
       if (mounted) {
-        showDialog(
-          context: context,
-          builder: (context) => _buildErrorPrompt(
-            context,
-            title: lang.translate('register_failed') ?? (isRTL ? 'فشل التحقق' : 'Verification Failed'),
-            message: e.toString().replaceAll('Exception: ', ''),
-            icon: Icons.error_outline_rounded,
-          ),
-        );
+        final errStr = e.toString().toLowerCase();
+        if (e is DeviceMismatchException || errStr.contains('mismatch') || errStr.contains('linked to another device') || errStr.contains('disconnect the old device')) {
+          showDialog(
+            context: context,
+            builder: (context) => _buildErrorPrompt(
+              context,
+              title: isRTL ? 'تنبيه الأمان' : 'Security Alert',
+              message: isRTL 
+                  ? 'هذا الحساب مرتبط بجهاز آخر بالفعل. يرجى إلغاء ربط الجهاز القديم أولاً.'
+                  : 'This account is already linked to another device. Please disconnect the old device first.',
+              icon: Icons.phonelink_lock_rounded,
+            ),
+          );
+        } else {
+          showDialog(
+            context: context,
+            builder: (context) => _buildErrorPrompt(
+              context,
+              title: lang.translate('register_failed') ?? (isRTL ? 'فشل التحقق' : 'Verification Failed'),
+              message: e.toString().replaceAll('Exception: ', '').replaceAll('ServerException: ', ''),
+              icon: Icons.error_outline_rounded,
+            ),
+          );
+        }
       }
     } finally {
       if (mounted) setState(() => _isLoading = false);

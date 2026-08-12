@@ -16,12 +16,12 @@ if (localPropertiesFile.exists()) {
 
 def flutterVersionCode = localProperties.getProperty("flutter.versionCode")
 if (flutterVersionCode == null) {
-    flutterVersionCode = "89"
+    flutterVersionCode = "90"
 }
 
 def flutterVersionName = localProperties.getProperty("flutter.versionName")
 if (flutterVersionName == null) {
-    flutterVersionName = "89"
+    flutterVersionName = "90"
 }
 
 def keystoreProperties = new Properties()
@@ -61,7 +61,7 @@ android {
         applicationId = "com.elprofvirus.app"
         minSdk = 26
         targetSdk = 36
-        versionCode = 89
+        versionCode = 90
         versionName = "1.0.0"
 
         externalNativeBuild {

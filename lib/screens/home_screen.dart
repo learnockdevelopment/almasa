@@ -127,7 +127,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                               border: Border.all(color: Colors.white.withOpacity(0.08)),
                               boxShadow: [
                                 BoxShadow(
-                                  color: const Color(0xFF6366F1).withOpacity(0.15),
+                                  color: Theme.of(context).primaryColor.withOpacity(0.15),
                                   blurRadius: 50,
                                   spreadRadius: 5,
                                 )
@@ -217,7 +217,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                           ElevatedButton(
                             onPressed: _isLoading ? null : _searchMaterial,
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFF6366F1), // Indigo 500
+                              backgroundColor: Theme.of(context).primaryColor,
                               foregroundColor: Colors.white,
                               padding: const EdgeInsets.symmetric(vertical: 26),
                               shape: RoundedRectangleBorder(
@@ -293,7 +293,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
             Positioned(
               top: -100 + (50 * _animController.value),
               right: -100 + (30 * (1 - _animController.value)),
-              child: _buildBloom(const Color(0xFF6366F1).withOpacity(0.3), 400),
+              child: _buildBloom(Theme.of(context).primaryColor.withOpacity(0.3), 400),
             ),
             // Floating Bloom 2
             Positioned(

@@ -67,10 +67,10 @@ class _SecurityCheckScreenState extends State<SecurityCheckScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.shield_outlined, size: 100, color: Color(0xFF6366F1)),
+            Icon(Icons.shield_outlined, size: 100, color: Theme.of(context).primaryColor),
             const SizedBox(height: 48),
             if (_isChecking) ...[
-              const CircularProgressIndicator(color: Color(0xFF6366F1), strokeWidth: 3),
+              CircularProgressIndicator(color: Theme.of(context).primaryColor, strokeWidth: 3),
               const SizedBox(height: 24),
               Text(
                 lang.translate(_statusKey), 

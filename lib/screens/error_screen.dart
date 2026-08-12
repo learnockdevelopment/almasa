@@ -26,7 +26,7 @@ class ErrorScreen extends StatelessWidget {
           Positioned(
             top: -100,
             right: -100,
-            child: _buildBloom(const Color(0xFF6366F1).withOpacity(0.2), 400),
+            child: _buildBloom(Theme.of(context).primaryColor.withOpacity(0.2), 400),
           ),
           Positioned(
             bottom: -50,
@@ -57,7 +57,7 @@ class ErrorScreen extends StatelessWidget {
                         borderRadius: BorderRadius.circular(32),
                         boxShadow: [
                           BoxShadow(
-                            color: const Color(0xFF6366F1).withOpacity(0.2),
+                            color: Theme.of(context).primaryColor.withOpacity(0.2),
                             blurRadius: 40,
                             spreadRadius: 5,
                           )
@@ -127,7 +127,7 @@ class ErrorScreen extends StatelessWidget {
                     child: ElevatedButton(
                       onPressed: onRetry,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF6366F1),
+                        backgroundColor: Theme.of(context).primaryColor,
                         foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(vertical: 20),
                         shape: RoundedRectangleBorder(

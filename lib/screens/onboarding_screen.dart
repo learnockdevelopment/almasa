@@ -110,14 +110,17 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           return;
         }
         final errorStr = e.toString().toLowerCase();
-        if (e is DeviceMismatchException || errorStr.contains('mismatch device id')) {
+        final isRTL = lang.currentLocale.languageCode == 'ar';
+        if (e is DeviceMismatchException || errorStr.contains('mismatch') || errorStr.contains('linked to another device') || errorStr.contains('disconnect the old device')) {
           showDialog(
             context: context,
             barrierDismissible: false,
             builder: (context) => _buildErrorPrompt(
               context,
-              title: 'تنبيه الأمان',
-              message: 'عذراً، هذا الحساب مرتبط بجهاز آخر بالفعل. يرجى تسجيل الدخول من جهازك الأساسي.',
+              title: isRTL ? 'تنبيه الأمان' : 'Security Alert',
+              message: isRTL 
+                  ? 'هذا الحساب مرتبط بجهاز آخر بالفعل. يرجى إلغاء ربط الجهاز القديم أولاً.'
+                  : 'This account is already linked to another device. Please disconnect the old device first.',
               icon: Icons.phonelink_lock_rounded,
               isExitButton: true,
             ),
@@ -305,14 +308,17 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         final lang = Provider.of<LanguageProvider>(context, listen: false);
         final errorStr = e.toString().toLowerCase();
         
-        if (e is DeviceMismatchException || errorStr.contains('mismatch device id')) {
+        final isRTL = lang.currentLocale.languageCode == 'ar';
+        if (e is DeviceMismatchException || errorStr.contains('mismatch') || errorStr.contains('linked to another device') || errorStr.contains('disconnect the old device')) {
           showDialog(
             context: context,
             barrierDismissible: false,
             builder: (context) => _buildErrorPrompt(
               context,
-              title: 'تنبيه الأمان',
-              message: 'عذراً، هذا الحساب مرتبط بجهاز آخر بالفعل. يرجى تسجيل الدخول من جهازك الأساسي.',
+              title: isRTL ? 'تنبيه الأمان' : 'Security Alert',
+              message: isRTL 
+                  ? 'هذا الحساب مرتبط بجهاز آخر بالفعل. يرجى إلغاء ربط الجهاز القديم أولاً.'
+                  : 'This account is already linked to another device. Please disconnect the old device first.',
               icon: Icons.phonelink_lock_rounded,
               isExitButton: true,
             ),
@@ -379,14 +385,17 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           return;
         }
         final errorStr = e.toString().toLowerCase();
-        if (e is DeviceMismatchException || errorStr.contains('mismatch device id')) {
+        final isRTL = lang.currentLocale.languageCode == 'ar';
+        if (e is DeviceMismatchException || errorStr.contains('mismatch') || errorStr.contains('linked to another device') || errorStr.contains('disconnect the old device')) {
           showDialog(
             context: context,
             barrierDismissible: false,
             builder: (context) => _buildErrorPrompt(
               context,
-              title: 'تنبيه الأمان',
-              message: 'عذراً، هذا الحساب مرتبط بجهاز آخر بالفعل. يرجى تسجيل الدخول من جهازك الأساسي.',
+              title: isRTL ? 'تنبيه الأمان' : 'Security Alert',
+              message: isRTL 
+                  ? 'هذا الحساب مرتبط بجهاز آخر بالفعل. يرجى إلغاء ربط الجهاز القديم أولاً.'
+                  : 'This account is already linked to another device. Please disconnect the old device first.',
               icon: Icons.phonelink_lock_rounded,
               isExitButton: true,
             ),
@@ -496,14 +505,17 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           return;
         }
         final errorStr = e.toString().toLowerCase();
-        if (e is DeviceMismatchException || errorStr.contains('mismatch device id')) {
+        final isRTL = lang.currentLocale.languageCode == 'ar';
+        if (e is DeviceMismatchException || errorStr.contains('mismatch') || errorStr.contains('linked to another device') || errorStr.contains('disconnect the old device')) {
           showDialog(
             context: context,
             barrierDismissible: false,
             builder: (context) => _buildErrorPrompt(
               context,
-              title: 'تنبيه الأمان',
-              message: 'عذراً، هذا الحساب مرتبط بجهاز آخر بالفعل. يرجى تسجيل الدخول من جهازك الأساسي.',
+              title: isRTL ? 'تنبيه الأمان' : 'Security Alert',
+              message: isRTL 
+                  ? 'هذا الحساب مرتبط بجهاز آخر بالفعل. يرجى إلغاء ربط الجهاز القديم أولاً.'
+                  : 'This account is already linked to another device. Please disconnect the old device first.',
               icon: Icons.phonelink_lock_rounded,
               isExitButton: true,
             ),
@@ -1155,14 +1167,18 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 Navigator.pushNamedAndRemoveUntil(context, '/banned', (route) => false);
                 return;
               }
-              if (e is DeviceMismatchException || e.toString().toLowerCase().contains('mismatch device id')) {
+              final errStr = e.toString().toLowerCase();
+              final isRTL = Provider.of<LanguageProvider>(context, listen: false).currentLocale.languageCode == 'ar';
+              if (e is DeviceMismatchException || errStr.contains('mismatch') || errStr.contains('linked to another device') || errStr.contains('disconnect the old device')) {
                 showDialog(
                   context: context,
                   barrierDismissible: false,
                   builder: (context) => _buildErrorPrompt(
                     context,
-                    title: 'تنبيه الأمان',
-                    message: 'عذراً، هذا الحساب مرتبط بجهاز آخر بالفعل.',
+                    title: isRTL ? 'تنبيه الأمان' : 'Security Alert',
+                    message: isRTL 
+                        ? 'هذا الحساب مرتبط بجهاز آخر بالفعل. يرجى إلغاء ربط الجهاز القديم أولاً.'
+                        : 'This account is already linked to another device. Please disconnect the old device first.',
                     icon: Icons.phonelink_lock_rounded,
                     isExitButton: true,
                   ),

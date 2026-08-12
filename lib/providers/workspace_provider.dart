@@ -98,32 +98,33 @@ class WorkspaceProvider with ChangeNotifier {
   Future<Map<String, dynamic>> getPublicSiteSettings(String host) async {
     final res = await _apiService.getPublicSiteSettings(host);
     try {
-      final settings = res['settings'] as Map<String, dynamic>?;
-      if (settings != null) {
-        final siteNameRaw = settings['site_name']?.toString() ?? '';
-        publicSiteName = (siteNameRaw.trim().toLowerCase() == 'www') ? '' : siteNameRaw.trim();
-        publicLogoUrl = settings['logo_url']?.toString();
-        final cur = settings['currency']?.toString() ?? settings['currency_symbol']?.toString() ?? settings['currency_code']?.toString();
-        if (cur != null && cur.isNotEmpty) publicCurrency = cur;
+      final settings = (res['settings'] is Map ? Map<String, dynamic>.from(res['settings']) : null) ?? 
+                       (res['data'] is Map ? Map<String, dynamic>.from(res['data']) : null) ?? 
+                       Map<String, dynamic>.from(res);
+      
+      final siteNameRaw = settings['site_name']?.toString() ?? res['site_name']?.toString() ?? '';
+      publicSiteName = (siteNameRaw.trim().toLowerCase() == 'www') ? '' : siteNameRaw.trim();
+      publicLogoUrl = settings['logo_url']?.toString() ?? res['logo_url']?.toString();
+      final cur = settings['currency']?.toString() ?? settings['currency_symbol']?.toString() ?? settings['currency_code']?.toString() ?? res['currency']?.toString();
+      if (cur != null && cur.isNotEmpty) publicCurrency = cur;
 
-        final enableReg = settings['enable_registration'];
-        debugPrint('ℹ️ enable_registration raw value: $enableReg (type: ${enableReg.runtimeType})');
-        if (enableReg != null) enableRegistration = enableReg == true || enableReg == 1 || enableReg == '1' || enableReg == 'true';
-        debugPrint('ℹ️ enableRegistration parsed value: $enableRegistration');
-        
-        final enableSocial = settings['enable_social_login'];
-        debugPrint('ℹ️ enable_social_login raw value: $enableSocial (type: ${enableSocial.runtimeType})');
-        if (enableSocial != null) enableSocialLogin = enableSocial == true || enableSocial == 1 || enableSocial == '1' || enableSocial == 'true';
-        debugPrint('ℹ️ enableSocialLogin parsed value: $enableSocialLogin');
-        
-        final enabledVal = settings['watermark_enabled'];
-        _watermarkEnabled = enabledVal == 1 || enabledVal == true || enabledVal.toString() == '1' || enabledVal.toString().toLowerCase() == 'true';
-        _watermarkFields = settings['watermark_fields']?.toString() ?? "id,name,phone";
-        _watermarkScope = settings['watermark_scope']?.toString() ?? "all_site";
-        _watermarkIntervalSeconds = int.tryParse(settings['watermark_interval_seconds']?.toString() ?? '') ?? 15;
-        if (_watermarkIntervalSeconds < 3) {
-          _watermarkIntervalSeconds = 3;
-        }
+      final enableReg = settings['enable_registration'] ?? res['enable_registration'];
+      debugPrint('ℹ️ enable_registration raw value: $enableReg (type: ${enableReg.runtimeType})');
+      if (enableReg != null) enableRegistration = enableReg == true || enableReg == 1 || enableReg == '1' || enableReg == 'true';
+      debugPrint('ℹ️ enableRegistration parsed value: $enableRegistration');
+      
+      final enableSocial = settings['enable_social_login'] ?? res['enable_social_login'];
+      debugPrint('ℹ️ enable_social_login raw value: $enableSocial (type: ${enableSocial.runtimeType})');
+      if (enableSocial != null) enableSocialLogin = enableSocial == true || enableSocial == 1 || enableSocial == '1' || enableSocial == 'true';
+      debugPrint('ℹ️ enableSocialLogin parsed value: $enableSocialLogin');
+      
+      final enabledVal = settings['watermark_enabled'] ?? res['watermark_enabled'];
+      _watermarkEnabled = enabledVal == 1 || enabledVal == true || enabledVal.toString() == '1' || enabledVal.toString().toLowerCase() == 'true';
+      _watermarkFields = settings['watermark_fields']?.toString() ?? res['watermark_fields']?.toString() ?? "id,name,phone";
+      _watermarkScope = settings['watermark_scope']?.toString() ?? res['watermark_scope']?.toString() ?? "all_site";
+      _watermarkIntervalSeconds = int.tryParse(settings['watermark_interval_seconds']?.toString() ?? res['watermark_interval_seconds']?.toString() ?? '') ?? 15;
+      if (_watermarkIntervalSeconds < 3) {
+        _watermarkIntervalSeconds = 3;
       }
       
       try {
@@ -245,7 +246,7 @@ class WorkspaceProvider with ChangeNotifier {
           aboutTeacher: settings?['about_teacher'],
           whatsappNumber: settings?['whatsapp_number'],
           logoUrl: settings?['logo_url'],
-          themeColor: settings?['theme_color'],
+          themeColor: ApiService.extractAdminColor(response) ?? settings?['theme_color'] ?? w.themeColor,
           faqsJson: json.encode(settings?['faqs'] ?? []),
           featuresJson: json.encode(settings?['features'] ?? []),
           latestCoursesJson: json.encode(courses ?? []),

@@ -28,7 +28,7 @@ class ServerException implements Exception {
 
 class DeviceMismatchException implements Exception {
   final String message;
-  DeviceMismatchException([this.message = 'mismatch device id']);
+  DeviceMismatchException([this.message = 'This account is already linked to another device. Please disconnect the old device first.']);
   @override
   String toString() => message;
 }
@@ -44,6 +44,101 @@ class ApiService {
   final _stateKey = 'app_state';
   AppState? _state;
   String? _deviceId;
+
+  static Map<String, dynamic> parseJsonResponse(http.Response response) {
+    if (response.body.isEmpty) return {};
+    try {
+      final decoded = json.decode(response.body);
+      if (decoded is Map<String, dynamic>) {
+        return decoded;
+      } else if (decoded is Map) {
+        return Map<String, dynamic>.from(decoded);
+      } else if (decoded is List) {
+        return {'data': decoded};
+      }
+      return {'result': decoded};
+    } catch (e) {
+      debugPrint('⚠️ Non-JSON response body (${response.statusCode}): ${response.body.length > 150 ? response.body.substring(0, 150) : response.body}');
+      if (response.body.contains('<html') || response.body.contains('<!DOCTYPE')) {
+        throw ServerException('خطأ في السيرفر (${response.statusCode}). Server returned invalid response format.', response.statusCode);
+      }
+      throw ServerException('استجابة غير متوقعة من السيرفر (${response.statusCode})', response.statusCode);
+    }
+  }
+
+  static String extractErrorMessage(Map<String, dynamic> data, String defaultMsg) {
+    if (data.containsKey('errors') && data['errors'] != null) {
+      final errors = data['errors'];
+      if (errors is Map) {
+        final messages = <String>[];
+        errors.forEach((key, value) {
+          if (value is List && value.isNotEmpty) {
+            messages.add(value.first.toString());
+          } else if (value != null && value.toString().isNotEmpty) {
+            messages.add(value.toString());
+          }
+        });
+        if (messages.isNotEmpty) return messages.join('\n');
+      } else if (errors is List && errors.isNotEmpty) {
+        return errors.map((e) => e.toString()).join('\n');
+      } else if (errors is String && errors.isNotEmpty) {
+        return errors;
+      }
+    }
+    if (data.containsKey('error') && data['error'] != null) {
+      final err = data['error'];
+      if (err is String && err.isNotEmpty) return err;
+      if (err is Map && err.containsKey('message')) return err['message'].toString();
+    }
+    if (data.containsKey('message') && data['message'] != null) {
+      final msg = data['message'].toString();
+      if (msg.isNotEmpty && msg != 'The given data was invalid.') return msg;
+    }
+    return defaultMsg;
+  }
+
+  static String? extractAdminColor(dynamic rawJson) {
+    if (rawJson == null) return null;
+    Map<String, dynamic>? map;
+    if (rawJson is Map<String, dynamic>) {
+      map = rawJson;
+    } else if (rawJson is Map) {
+      map = Map<String, dynamic>.from(rawJson);
+    } else {
+      return null;
+    }
+
+    final candidates = <Map<String, dynamic>>[
+      map,
+      if (map['settings'] is Map) Map<String, dynamic>.from(map['settings']),
+      if (map['data'] is Map) Map<String, dynamic>.from(map['data']),
+      if (map['site'] is Map) Map<String, dynamic>.from(map['site']),
+      if (map['options'] is Map) Map<String, dynamic>.from(map['options']),
+      if (map['tenant'] is Map) Map<String, dynamic>.from(map['tenant']),
+    ];
+
+    final keys = [
+      'theme_color',
+      'primary_color',
+      'brand_color',
+      'color',
+      'app_color',
+      'site_color',
+      'theme_primary_color',
+      'accent_color',
+      'main_color',
+    ];
+
+    for (final c in candidates) {
+      for (final key in keys) {
+        final val = c[key]?.toString().trim();
+        if (val != null && val.isNotEmpty && val != 'null' && val != 'undefined') {
+          return val;
+        }
+      }
+    }
+    return null;
+  }
 
   Future<void> _checkDeviceSafety() async {
     if (!SecurityService.bypassSecurityChecks) {
@@ -281,10 +376,15 @@ class ApiService {
       throw UserBannedException();
     }
 
-    if (errorMsg.contains('mismatch device id')) {
+    final fullErrText = (data is Map ? ('${data['error'] ?? ''} ${data['message'] ?? ''}') : '').toLowerCase();
+    if (fullErrText.contains('mismatch') || fullErrText.contains('linked to another device') || fullErrText.contains('disconnect the old device') || fullErrText.contains('another device')) {
       await clearSession();
       DerasyApp.navigatorKey.currentState?.pushNamedAndRemoveUntil('/', (route) => false, arguments: 'device_mismatch');
-      throw DeviceMismatchException();
+      throw DeviceMismatchException(
+        (data is Map && data['message'] != null && data['message'].toString().isNotEmpty)
+            ? data['message'].toString()
+            : 'This account is already linked to another device. Please disconnect the old device first.'
+      );
     }
     
     if (response.statusCode >= 500) {
@@ -401,7 +501,14 @@ class ApiService {
         throw UserBannedException();
       }
 
-      if (errorMsg.contains('mismatch device id')) throw DeviceMismatchException();
+      final fullErrText = ('${data['error'] ?? ''} ${data['message'] ?? ''}').toLowerCase();
+      if (fullErrText.contains('mismatch') || fullErrText.contains('linked to another device') || fullErrText.contains('disconnect the old device') || fullErrText.contains('another device')) {
+        throw DeviceMismatchException(
+          (data['message'] != null && data['message'].toString().isNotEmpty)
+              ? data['message'].toString()
+              : 'This account is already linked to another device. Please disconnect the old device first.'
+        );
+      }
 
       final user = data['user'] as Map<String, dynamic>?;
       if (user != null) {
@@ -528,7 +635,14 @@ class ApiService {
       throw UserBannedException();
     }
 
-    if (errorMsg.contains('mismatch device id')) throw DeviceMismatchException();
+    final fullErrText = ('${data['error'] ?? ''} ${data['message'] ?? ''}').toLowerCase();
+    if (fullErrText.contains('mismatch') || fullErrText.contains('linked to another device') || fullErrText.contains('disconnect the old device') || fullErrText.contains('another device')) {
+      throw DeviceMismatchException(
+        (data['message'] != null && data['message'].toString().isNotEmpty)
+            ? data['message'].toString()
+            : 'This account is already linked to another device. Please disconnect the old device first.'
+      );
+    }
 
     final user = data['user'] as Map<String, dynamic>?;
     if (user != null) {
@@ -579,8 +693,11 @@ class ApiService {
       'name': name,
       'email': email,
       'password': password,
+      'password_confirmation': password,
       'phone': phone,
       'birthDate': birthDate,
+      'birth_date': birthDate,
+      'date_of_birth': birthDate,
       'device_id': deviceId,
       'hwid': deviceId,
       'device_model': model,
@@ -649,7 +766,7 @@ class ApiService {
       throw UserBannedException();
     }
 
-    final Map<String, dynamic> data = Map<String, dynamic>.from(json.decode(response.body));
+    final Map<String, dynamic> data = parseJsonResponse(response);
     data['redirectedHost'] = finalHost;
     
     final errorRaw = (data['error'] ?? data['message'] ?? '').toString();
@@ -659,7 +776,14 @@ class ApiService {
       throw UserBannedException();
     }
 
-    if (errorMsg.contains('mismatch device id')) throw DeviceMismatchException();
+    final fullErrText = ('${data['error'] ?? ''} ${data['message'] ?? ''}').toLowerCase();
+    if (fullErrText.contains('mismatch') || fullErrText.contains('linked to another device') || fullErrText.contains('disconnect the old device') || fullErrText.contains('another device')) {
+      throw DeviceMismatchException(
+        (data['message'] != null && data['message'].toString().isNotEmpty)
+            ? data['message'].toString()
+            : 'This account is already linked to another device. Please disconnect the old device first.'
+      );
+    }
 
     final user = data['user'] as Map<String, dynamic>?;
     if (user != null) {
@@ -670,10 +794,11 @@ class ApiService {
       }
     }
 
-    if (response.statusCode >= 500) throw ServerException(data['message'] ?? 'Register server error', response.statusCode);
+    if (response.statusCode >= 500) throw ServerException(extractErrorMessage(data, 'خطأ في سيرفر التسجيل (${response.statusCode})'), response.statusCode);
     if (response.statusCode != 200 && response.statusCode != 201) {
-      throw Exception(data['error'] ?? data['message'] ?? 'Register failed');
+      throw Exception(extractErrorMessage(data, 'فشل إنشاء الحساب'));
     }
+    return data;
     return data;
   }
 
@@ -750,10 +875,10 @@ class ApiService {
     if (response.statusCode == 403) {
       throw UserBannedException();
     }
-    final Map<String, dynamic> data = Map<String, dynamic>.from(json.decode(response.body));
-    if (response.statusCode >= 500) throw ServerException(data['error'] ?? data['message'] ?? 'OTP server error', response.statusCode);
+    final Map<String, dynamic> data = parseJsonResponse(response);
+    if (response.statusCode >= 500) throw ServerException(extractErrorMessage(data, 'خطأ في سيرفر إرسال كود التحقق (${response.statusCode})'), response.statusCode);
     if (response.statusCode != 200 && response.statusCode != 201) {
-      throw Exception(data['error'] ?? data['message'] ?? 'Failed to send OTP');
+      throw Exception(extractErrorMessage(data, 'فشل إرسال كود التحقق'));
     }
     return data;
   }
@@ -789,9 +914,12 @@ class ApiService {
       'name': name,
       'email': email,
       'password': password,
+      'password_confirmation': password,
       'phone': phone,
       'otp': otp,
       'birthDate': birthDate,
+      'birth_date': birthDate,
+      'date_of_birth': birthDate,
       'device_id': deviceId,
       'hwid': deviceId,
       'device_model': model,
@@ -848,7 +976,7 @@ class ApiService {
     if (response.statusCode == 403) {
       throw UserBannedException();
     }
-    final Map<String, dynamic> data = Map<String, dynamic>.from(json.decode(response.body));
+    final Map<String, dynamic> data = parseJsonResponse(response);
     data['redirectedHost'] = finalHost;
     final user = data['user'] as Map<String, dynamic>?;
     if (user != null) {
@@ -857,10 +985,11 @@ class ApiService {
         throw UserBannedException();
       }
     }
-    if (response.statusCode >= 500) throw ServerException(data['error'] ?? data['message'] ?? 'Verify server error', response.statusCode);
+    if (response.statusCode >= 500) throw ServerException(extractErrorMessage(data, 'خطأ في سيرفر التحقق (${response.statusCode})'), response.statusCode);
     if (response.statusCode != 200 && response.statusCode != 201) {
-      throw Exception(data['error'] ?? data['message'] ?? 'OTP verification failed');
+      throw Exception(extractErrorMessage(data, 'فشل التحقق وإنشاء الحساب'));
     }
+    return data;
     return data;
   }
 
@@ -932,7 +1061,7 @@ class ApiService {
     debugPrint('⚙️ [PUBLIC SITE SETTINGS RES] Status: ${response.statusCode}');
     debugPrint('⚙️ [PUBLIC SITE SETTINGS RES BODY]: ${response.body}');
     if (response.statusCode == 200) {
-      return json.decode(response.body);
+      return parseJsonResponse(response);
     }
     throw Exception('Failed to load site settings: ${response.statusCode}');
   }

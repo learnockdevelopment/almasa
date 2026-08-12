@@ -107,18 +107,19 @@ class _SplashScreenState extends State<SplashScreen>
     bool reqLogin = false;
     try {
       final settingsRes = await wp.getPublicSiteSettings(kSiteHost);
-      final settings = settingsRes['settings'] as Map<String, dynamic>?;
-      if (settings != null) {
-        final rl = settings['require_login'];
-        debugPrint('ℹ️ require_login raw value: $rl (type: ${rl.runtimeType})');
-        reqLogin = rl == true || rl == 1 || rl.toString() == '1' || rl.toString().toLowerCase() == 'true';
-        debugPrint('ℹ️ reqLogin parsed value: $reqLogin');
-        wp.publicSiteName = settings['site_name']?.toString();
-        wp.publicLogoUrl = settings['logo_url']?.toString();
-        final pubColor = settings['theme_color']?.toString() ?? settings['primary_color']?.toString();
-        if (pubColor != null) {
-           Provider.of<ThemeProvider>(context, listen: false).setTenant('default', themeColor: pubColor);
-        }
+      final settings = (settingsRes['settings'] is Map ? Map<String, dynamic>.from(settingsRes['settings']) : null) ?? 
+                       (settingsRes['data'] is Map ? Map<String, dynamic>.from(settingsRes['data']) : null) ?? 
+                       Map<String, dynamic>.from(settingsRes);
+      
+      final rl = settings['require_login'] ?? settingsRes['require_login'];
+      debugPrint('ℹ️ require_login raw value: $rl (type: ${rl.runtimeType})');
+      reqLogin = rl == true || rl == 1 || rl.toString() == '1' || rl.toString().toLowerCase() == 'true';
+      debugPrint('ℹ️ reqLogin parsed value: $reqLogin');
+      wp.publicSiteName = settings['site_name']?.toString() ?? settingsRes['site_name']?.toString();
+      wp.publicLogoUrl = settings['logo_url']?.toString() ?? settingsRes['logo_url']?.toString();
+      final pubColor = ApiService.extractAdminColor(settingsRes);
+      if (pubColor != null) {
+         Provider.of<ThemeProvider>(context, listen: false).setTenant('default', themeColor: pubColor);
       }
     } catch (e) {
       debugPrint('Failed to get public site settings: $e');
