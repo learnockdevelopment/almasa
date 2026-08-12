@@ -387,11 +387,13 @@ class ApiService {
       );
     }
     
-    if (response.statusCode >= 500) {
-      throw ServerException((data is Map ? data['message'] : null) ?? 'Internal Server Error', response.statusCode);
-    }
     if (response.statusCode >= 400) {
-      throw Exception((data is Map ? (data['error'] ?? data['message']) : null) ?? 'API Error');
+      final formattedMsg = extractErrorMessage(data is Map ? Map<String, dynamic>.from(data) : {}, 'API Error (${response.statusCode})');
+      debugPrint('❌ API ERROR [${response.statusCode}] $path: $formattedMsg');
+      if (response.statusCode >= 500) {
+        throw ServerException(formattedMsg, response.statusCode);
+      }
+      throw Exception(formattedMsg);
     }
     return data;
   }
@@ -1196,9 +1198,23 @@ class ApiService {
 
   Future<Map<String, dynamic>> updateProfile({String? name, String? phone, String? avatarUrl}) async {
     final body = <String, dynamic>{};
-    if (name != null) body['name'] = name;
-    if (phone != null) body['phone'] = phone;
-    if (avatarUrl != null) body['avatar_url'] = avatarUrl;
+    if (name != null && name.isNotEmpty) {
+      body['name'] = name;
+      body['full_name'] = name;
+    }
+    if (phone != null && phone.isNotEmpty) {
+      body['phone'] = phone;
+      body['phone_number'] = phone;
+      body['mobile'] = phone;
+    }
+    if (avatarUrl != null && avatarUrl.isNotEmpty) {
+      body['avatar_url'] = avatarUrl;
+      body['avatar'] = avatarUrl;
+      body['image'] = avatarUrl;
+      body['profile_photo'] = avatarUrl;
+    }
+    debugPrint('🚀 UPDATE PROFILE CALL: /api/auth/profile');
+    debugPrint('📦 BODY: ${json.encode(body)}');
     return await request('POST', '/auth/profile', body: body);
   }
 

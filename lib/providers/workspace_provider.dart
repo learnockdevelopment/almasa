@@ -470,13 +470,17 @@ class WorkspaceProvider with ChangeNotifier {
       addedAt: DateTime.now().millisecondsSinceEpoch,
     );
     await _apiService.addWorkspace(workspace);
-    try {
-      await _apiService.setConnectData(workspace: workspace);
-    } catch (e) {
-      debugPrint('Set Connect Data Error (OTP Register): $e');
-    }
-    await enrichWorkspace(workspace.id);
-    notifyListeners();
+    
+    // Defer non-critical API calls to the background to speed up UI transition
+    Future.microtask(() async {
+      try {
+        await _apiService.setConnectData(workspace: workspace);
+      } catch (e) {
+        debugPrint('Set Connect Data Error (OTP Register): $e');
+      }
+      await enrichWorkspace(workspace.id);
+      notifyListeners();
+    });
   }
 
   Future<void> switchWorkspace(String id, [BuildContext? context]) async {

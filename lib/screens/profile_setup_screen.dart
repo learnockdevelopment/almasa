@@ -158,18 +158,30 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
 
   Future<void> _submitProfile() async {
     setState(() => _isLoading = true);
+    final wp = Provider.of<WorkspaceProvider>(context, listen: false);
     try {
       String? avatarUrl;
       if (_selectedImage != null) {
-        avatarUrl = await _uploadImage(_selectedImage!, _selectedImage!.path.split('/').last);
+        try {
+          avatarUrl = await _uploadImage(_selectedImage!, _selectedImage!.path.split('/').last);
+        } catch (imgErr) {
+          debugPrint('⚠️ Profile image upload error: $imgErr');
+        }
       }
       
-      final wp = Provider.of<WorkspaceProvider>(context, listen: false);
-      await wp.updateProfile(
-        name: _nameController.text.trim(),
-        phone: _phoneController.text.trim(),
-        avatarUrl: avatarUrl,
-      );
+      try {
+        await wp.updateProfile(
+          name: _nameController.text.trim(),
+          phone: _phoneController.text.trim(),
+          avatarUrl: avatarUrl,
+        );
+      } catch (updateErr) {
+        debugPrint('⚠️ Profile update API error: $updateErr');
+        final errStr = updateErr.toString().toLowerCase();
+        if (!errStr.contains('404') && !errStr.contains('not found')) {
+          rethrow;
+        }
+      }
 
       final prefs = await SharedPreferences.getInstance();
       await prefs.setBool('profile_setup_skipped_${wp.activeWorkspace?.id}', true);
@@ -178,8 +190,13 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
         Navigator.pushReplacementNamed(context, '/dashboard');
       }
     } catch (e) {
+      debugPrint('❌ SUBMIT PROFILE FAILED: $e');
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red));
+        final msg = e.toString().replaceAll('Exception: ', '').replaceAll('ServerException: ', '');
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(msg),
+          backgroundColor: Colors.redAccent,
+        ));
       }
     } finally {
       if (mounted) setState(() => _isLoading = false);
