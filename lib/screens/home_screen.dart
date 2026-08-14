@@ -4,8 +4,8 @@ import 'dart:ui';
 import '../services/api_service.dart';
 import 'material_viewer_screen.dart';
 import 'package:provider/provider.dart';
-import 'package:smart/providers/language_provider.dart';
-import 'package:smart/providers/workspace_provider.dart';
+import 'package:elmasa/providers/language_provider.dart';
+import 'package:elmasa/providers/workspace_provider.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});

@@ -4,7 +4,7 @@ import 'package:flutter/foundation.dart' show debugPrint;
 class EncryptionService {
   // Use a secure 32-character key for AES-256
   // In a production app, this should be stored securely (e.g., flutter_secure_storage)
-  static final _key = Key.fromUtf8('smartApPsEcUrEkEy2026_03_29_32'); 
+  static final _key = Key.fromUtf8('elmasaApPsEcUrEkEy2026_03_29_32'); 
   static final _iv = IV.fromLength(16);
   static final _encrypter = Encrypter(AES(_key));
 

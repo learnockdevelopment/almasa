@@ -4,9 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
-import 'package:smart/providers/workspace_provider.dart';
-import 'package:smart/providers/language_provider.dart';
-import 'package:smart/widgets/premium_loader.dart';
+import 'package:elmasa/providers/workspace_provider.dart';
+import 'package:elmasa/providers/language_provider.dart';
+import 'package:elmasa/widgets/premium_loader.dart';
 
 class WhiteboardScreen extends StatefulWidget {
   final int? courseId;

@@ -1,11 +1,11 @@
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:smart/providers/workspace_provider.dart';
-import 'package:smart/providers/language_provider.dart';
-import 'package:smart/providers/theme_provider.dart';
-import 'package:smart/widgets/premium_loader.dart';
-import 'package:smart/screens/simple_scanner_screen.dart';
+import 'package:elmasa/providers/workspace_provider.dart';
+import 'package:elmasa/providers/language_provider.dart';
+import 'package:elmasa/providers/theme_provider.dart';
+import 'package:elmasa/widgets/premium_loader.dart';
+import 'package:elmasa/screens/simple_scanner_screen.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 class CourseDetailScreen extends StatefulWidget {

@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:smart/providers/workspace_provider.dart';
-import 'package:smart/providers/language_provider.dart';
+import 'package:elmasa/providers/workspace_provider.dart';
+import 'package:elmasa/providers/language_provider.dart';
 import 'dart:convert';
 import 'dart:io' as io;
 import 'dart:ui' as ui;
-import 'package:smart/widgets/premium_loader.dart';
-import 'package:smart/widgets/course_card.dart';
-import 'package:smart/utils/iconly.dart';
-import 'package:smart/widgets/modern_empty_state_illustration.dart';
+import 'package:elmasa/widgets/premium_loader.dart';
+import 'package:elmasa/widgets/course_card.dart';
+import 'package:elmasa/utils/iconly.dart';
+import 'package:elmasa/widgets/modern_empty_state_illustration.dart';
 
 class CoursesScreen extends StatefulWidget {
   final VoidCallback? onMenuPressed;

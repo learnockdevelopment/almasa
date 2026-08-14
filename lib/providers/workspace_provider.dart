@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:smart/models/workspace.dart';
-import 'package:smart/providers/theme_provider.dart';
-import 'package:smart/services/api_service.dart';
+import 'package:elmasa/models/workspace.dart';
+import 'package:elmasa/providers/theme_provider.dart';
+import 'package:elmasa/services/api_service.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart' as launcher;
 import 'dart:convert';

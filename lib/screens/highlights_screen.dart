@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:smart/providers/workspace_provider.dart';
-import 'package:smart/providers/language_provider.dart';
+import 'package:elmasa/providers/workspace_provider.dart';
+import 'package:elmasa/providers/language_provider.dart';
 import 'dart:convert';
 import 'package:flutter_widget_from_html_core/flutter_widget_from_html_core.dart';
 
@@ -174,7 +174,7 @@ class HighlightsScreen extends StatelessWidget {
         case 'layout': return Icons.dashboard_customize_rounded;
         case 'shieldcheck': return Icons.verified_user_rounded;
         case 'award': return Icons.emoji_events_rounded;
-        case 'phone': return Icons.smartphone_rounded;
+        case 'phone': return Icons.elmasaphone_rounded;
         default: return Icons.auto_awesome_mosaic_rounded;
       }
     }

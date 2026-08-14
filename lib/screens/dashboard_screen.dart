@@ -1,26 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
-import 'package:smart/services/security_service.dart';
+import 'package:elmasa/services/security_service.dart';
 import 'dart:ui' as ui;
 import 'package:provider/provider.dart';
 import 'package:no_screenshot/no_screenshot.dart';
-import 'package:smart/providers/workspace_provider.dart';
-import 'package:smart/providers/language_provider.dart';
-import 'package:smart/providers/theme_provider.dart';
-import 'package:smart/widgets/premium_loader.dart';
-import 'package:smart/models/workspace.dart';
-import 'package:smart/screens/simple_scanner_screen.dart';
+import 'package:elmasa/providers/workspace_provider.dart';
+import 'package:elmasa/providers/language_provider.dart';
+import 'package:elmasa/providers/theme_provider.dart';
+import 'package:elmasa/widgets/premium_loader.dart';
+import 'package:elmasa/models/workspace.dart';
+import 'package:elmasa/screens/simple_scanner_screen.dart';
 import 'dart:convert';
 import 'dart:io' as io;
-import 'package:smart/services/api_service.dart';
-import 'package:smart/config/app_config.dart';
-import 'package:smart/screens/courses_screen.dart';
-import 'package:smart/screens/wallet_screen.dart';
-import 'package:smart/screens/profile_screen.dart';
-import 'package:smart/widgets/course_card.dart';
+import 'package:elmasa/services/api_service.dart';
+import 'package:elmasa/config/app_config.dart';
+import 'package:elmasa/screens/courses_screen.dart';
+import 'package:elmasa/screens/wallet_screen.dart';
+import 'package:elmasa/screens/profile_screen.dart';
+import 'package:elmasa/widgets/course_card.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
-import 'package:smart/utils/iconly.dart';
-import 'package:smart/widgets/modern_empty_state_illustration.dart';
+import 'package:elmasa/utils/iconly.dart';
+import 'package:elmasa/widgets/modern_empty_state_illustration.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 
@@ -1063,7 +1063,7 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
 
     final titleText = isAr 
         ? (siteName.isNotEmpty ? "تعلم بذكاء. تطور بثقة مع $siteName" : "تعلم بذكاء. تطور بثقة")
-        : (siteName.isNotEmpty ? "Learn Smart. Grow with Confidence at $siteName" : "Learn Smart. Grow with Confidence");
+        : (siteName.isNotEmpty ? "Learn elmasa. Grow with Confidence at $siteName" : "Learn elmasa. Grow with Confidence");
     final subText = isAr
         ? "منصة تعليمية تقدم تجربة تعلم مرنة تساعدك على تطوير مهاراتك وتحقيق أهدافك."
         : "A comprehensive platform offering flexible learning to develop your skills.";
@@ -1434,7 +1434,7 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
         case 'layout': return Icons.dashboard_customize_rounded;
         case 'shieldcheck': return Icons.verified_user_rounded;
         case 'award': return Icons.emoji_events_rounded;
-        case 'phone': return Icons.smartphone_rounded;
+        case 'phone': return Icons.elmasaphone_rounded;
         default: return Icons.auto_awesome_rounded;
       }
     }

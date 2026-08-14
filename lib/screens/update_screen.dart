@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
-import 'package:smart/providers/language_provider.dart';
-import 'package:smart/providers/workspace_provider.dart';
+import 'package:elmasa/providers/language_provider.dart';
+import 'package:elmasa/providers/workspace_provider.dart';
 import 'dart:ui';
 
 class UpdateScreen extends StatelessWidget {

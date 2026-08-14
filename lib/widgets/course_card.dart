@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:smart/utils/iconly.dart';
-import 'package:smart/providers/language_provider.dart';
+import 'package:elmasa/utils/iconly.dart';
+import 'package:elmasa/providers/language_provider.dart';
 
 class CourseCard extends StatelessWidget {
   final Map<String, dynamic> course;

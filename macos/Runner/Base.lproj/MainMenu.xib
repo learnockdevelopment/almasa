@@ -199,25 +199,25 @@
                                             </connections>
                                         </menuItem>
                                         <menuItem isSeparatorItem="YES" id="gPx-C9-uUO"/>
-                                        <menuItem title="Smart Copy/Paste" id="9yt-4B-nSM">
+                                        <menuItem title="elmasa Copy/Paste" id="9yt-4B-nSM">
                                             <modifierMask key="keyEquivalentModifierMask"/>
                                             <connections>
-                                                <action selector="toggleSmartInsertDelete:" target="-1" id="3IJ-Se-DZD"/>
+                                                <action selector="toggleelmasaInsertDelete:" target="-1" id="3IJ-Se-DZD"/>
                                             </connections>
                                         </menuItem>
-                                        <menuItem title="Smart Quotes" id="hQb-2v-fYv">
+                                        <menuItem title="elmasa Quotes" id="hQb-2v-fYv">
                                             <modifierMask key="keyEquivalentModifierMask"/>
                                             <connections>
                                                 <action selector="toggleAutomaticQuoteSubstitution:" target="-1" id="ptq-xd-QOA"/>
                                             </connections>
                                         </menuItem>
-                                        <menuItem title="Smart Dashes" id="rgM-f4-ycn">
+                                        <menuItem title="elmasa Dashes" id="rgM-f4-ycn">
                                             <modifierMask key="keyEquivalentModifierMask"/>
                                             <connections>
                                                 <action selector="toggleAutomaticDashSubstitution:" target="-1" id="oCt-pO-9gS"/>
                                             </connections>
                                         </menuItem>
-                                        <menuItem title="Smart Links" id="cwL-P1-jid">
+                                        <menuItem title="elmasa Links" id="cwL-P1-jid">
                                             <modifierMask key="keyEquivalentModifierMask"/>
                                             <connections>
                                                 <action selector="toggleAutomaticLinkDetection:" target="-1" id="Gip-E3-Fov"/>

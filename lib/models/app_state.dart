@@ -1,4 +1,4 @@
-import 'package:smart/models/workspace.dart';
+import 'package:elmasa/models/workspace.dart';
 
 class AppState {
   final List<Workspace> workspaces;
