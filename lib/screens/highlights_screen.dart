@@ -174,7 +174,7 @@ class HighlightsScreen extends StatelessWidget {
         case 'layout': return Icons.dashboard_customize_rounded;
         case 'shieldcheck': return Icons.verified_user_rounded;
         case 'award': return Icons.emoji_events_rounded;
-        case 'phone': return Icons.elmasaphone_rounded;
+        case 'phone': return Icons.phone_rounded;
         default: return Icons.auto_awesome_mosaic_rounded;
       }
     }

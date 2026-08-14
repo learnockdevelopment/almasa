@@ -7,9 +7,9 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:332049197085:android:80f3a2cd574ffe906ffef4",
+        "mobilesdk_app_id": "1:332049197085:android:900325dab28ccc496ffef4",
         "android_client_info": {
-          "package_name": "com.elprofvirus.app"
+          "package_name": "com.elprof.app"
         }
       },
       "oauth_client": [
@@ -31,10 +31,70 @@
               "client_type": 3
             },
             {
-              "client_id": "332049197085-qfqsdmj951kn6kidca0qrtjbfi88oucn.apps.googleusercontent.com",
+              "client_id": "332049197085-2lsd3iv9ou2ncjepfqa57m7d6kq6m97k.apps.googleusercontent.com",
               "client_type": 2,
               "ios_info": {
-                "bundle_id": "com.learnockapp2.app"
+                "bundle_id": "com.elprofmath.app"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:332049197085:android:80f3a2cd574ffe906ffef4",
+        "android_client_info": {
+          "package_name": "com.elprofvirus.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "332049197085-frrnju9jddqnh4ofau8ld1ok93g8bjui.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.elprofvirus.app",
+            "certificate_hash": "55aa69b3facd8b29215b345c3d35f9a8bb500abc"
+          }
+        },
+        {
+          "client_id": "332049197085-rqna3tioe5od48d3lo98e4q5hrfrahjh.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.elprofvirus.app",
+            "certificate_hash": "955984bae88780fe9c7a35b2459f60c6320bf3e6"
+          }
+        },
+        {
+          "client_id": "332049197085-sr2c0410rmb3ujcc1qglf9khu9197k5o.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.elprofvirus.app",
+            "certificate_hash": "1f573360255db120ad7804afe9af0feb17188244"
+          }
+        },
+        {
+          "client_id": "332049197085-ct3rrfp2fr85n20ma4kfas7pa0bq19t5.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDOiRrCo2PcREHoiWubYTiNDXfemLShntg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "332049197085-ct3rrfp2fr85n20ma4kfas7pa0bq19t5.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "332049197085-2lsd3iv9ou2ncjepfqa57m7d6kq6m97k.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.elprofmath.app"
               }
             }
           ]
@@ -91,10 +151,70 @@
               "client_type": 3
             },
             {
-              "client_id": "332049197085-qfqsdmj951kn6kidca0qrtjbfi88oucn.apps.googleusercontent.com",
+              "client_id": "332049197085-2lsd3iv9ou2ncjepfqa57m7d6kq6m97k.apps.googleusercontent.com",
               "client_type": 2,
               "ios_info": {
-                "bundle_id": "com.learnockapp2.app"
+                "bundle_id": "com.elprofmath.app"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:332049197085:android:f200848d433273836ffef4",
+        "android_client_info": {
+          "package_name": "com.omran_kingdom.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "332049197085-buoh1fsnu1f0b97ddob49e7tcosj7uqe.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.omran_kingdom.app",
+            "certificate_hash": "cd7b502cbb169f1ea0a7b9f65a964a7a51183726"
+          }
+        },
+        {
+          "client_id": "332049197085-co06t5up2qpd4ftiavsa4jdldi7fib30.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.omran_kingdom.app",
+            "certificate_hash": "f16709961d95c0821c95f643597d33b406d372a5"
+          }
+        },
+        {
+          "client_id": "332049197085-jh9953fvv54f440oe8un7ssmcthcl0qg.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.omran_kingdom.app",
+            "certificate_hash": "29fd04b373bc1b6a558ad87ae022d5835a189663"
+          }
+        },
+        {
+          "client_id": "332049197085-ct3rrfp2fr85n20ma4kfas7pa0bq19t5.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDOiRrCo2PcREHoiWubYTiNDXfemLShntg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "332049197085-ct3rrfp2fr85n20ma4kfas7pa0bq19t5.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "332049197085-2lsd3iv9ou2ncjepfqa57m7d6kq6m97k.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.elprofmath.app"
               }
             }
           ]

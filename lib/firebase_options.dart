@@ -41,8 +41,8 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyBpJgjpD5Pv-6Ge1V6895QAJXDcCflfOtg',
-    appId: '1:332049197085:web:e69095b453a194726ffef4',
+    apiKey: 'AIzaSyC56AH-salv93XsZLsDZ4P5Y6zAQBRLPRw',
+    appId: '1:332049197085:web:1b88088bd8f4413c6ffef4',
     messagingSenderId: '332049197085',
     projectId: 'mediation-elprofessor',
     authDomain: 'mediation-elprofessor.firebaseapp.com',
@@ -56,7 +56,6 @@ class DefaultFirebaseOptions {
     projectId: 'mediation-elprofessor',
     storageBucket: 'mediation-elprofessor.firebasestorage.app',
   );
-
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyDXSSazO9F5KQtiJ0otELhQGew9SDofrFs',
     appId: '1:332049197085:ios:556f00e38e0f47f76ffef4',
@@ -67,7 +66,6 @@ class DefaultFirebaseOptions {
     iosClientId: '332049197085-f2ttm3cgnm8gk4oa7gfhl98m5lod10o6.apps.googleusercontent.com',
     iosBundleId: 'com.elprofvirus.app',
   );
-
   static const FirebaseOptions macos = FirebaseOptions(
     apiKey: 'AIzaSyDXSSazO9F5KQtiJ0otELhQGew9SDofrFs',
     appId: '1:332049197085:ios:556f00e38e0f47f76ffef4',

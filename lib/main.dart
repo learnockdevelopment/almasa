@@ -38,7 +38,7 @@ void main() async {
   if (kReleaseMode) {
     debugPrint = (String? message, {int? wrapWidth}) {};
   }
- 
+
   if (!kDebugMode && !SecurityService.bypassSecurityChecks && (defaultTargetPlatform == TargetPlatform.iOS || defaultTargetPlatform == TargetPlatform.android)) {
     try {
       await NoScreenshot.instance.screenshotOff();
