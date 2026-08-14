@@ -1,26 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
-import 'package:elmasa/services/security_service.dart';
+import 'package:smart/services/security_service.dart';
 import 'dart:ui' as ui;
 import 'package:provider/provider.dart';
 import 'package:no_screenshot/no_screenshot.dart';
-import 'package:elmasa/providers/workspace_provider.dart';
-import 'package:elmasa/providers/language_provider.dart';
-import 'package:elmasa/providers/theme_provider.dart';
-import 'package:elmasa/widgets/premium_loader.dart';
-import 'package:elmasa/models/workspace.dart';
-import 'package:elmasa/screens/simple_scanner_screen.dart';
+import 'package:smart/providers/workspace_provider.dart';
+import 'package:smart/providers/language_provider.dart';
+import 'package:smart/providers/theme_provider.dart';
+import 'package:smart/widgets/premium_loader.dart';
+import 'package:smart/models/workspace.dart';
+import 'package:smart/screens/simple_scanner_screen.dart';
 import 'dart:convert';
 import 'dart:io' as io;
-import 'package:elmasa/services/api_service.dart';
-import 'package:elmasa/config/app_config.dart';
-import 'package:elmasa/screens/courses_screen.dart';
-import 'package:elmasa/screens/wallet_screen.dart';
-import 'package:elmasa/screens/profile_screen.dart';
-import 'package:elmasa/widgets/course_card.dart';
+import 'package:smart/services/api_service.dart';
+import 'package:smart/config/app_config.dart';
+import 'package:smart/screens/courses_screen.dart';
+import 'package:smart/screens/wallet_screen.dart';
+import 'package:smart/screens/profile_screen.dart';
+import 'package:smart/widgets/course_card.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
-import 'package:elmasa/utils/iconly.dart';
-import 'package:elmasa/widgets/modern_empty_state_illustration.dart';
+import 'package:smart/utils/iconly.dart';
+import 'package:smart/widgets/modern_empty_state_illustration.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 
@@ -1343,95 +1343,49 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
     );
   }
 
-  Widget _buildFeaturesSection() {
-    final lang = Provider.of<LanguageProvider>(context, listen: false);
-    final onSurface = Theme.of(context).colorScheme.onSurface;
-    final primary = Theme.of(context).primaryColor;
+
+  Widget _buildFaqsSection() {
     final wp = Provider.of<WorkspaceProvider>(context, listen: false);
-    
-    List features = [];
+    final workspace = wp.activeWorkspace;
+    List faqs = [];
     try {
-      final decoded = json.decode(wp.activeWorkspace?.featuresJson ?? '[]');
-      if (decoded is List) {
-        features = decoded;
-      } else if (decoded is Map && decoded['features'] is List) {
-        features = decoded['features'];
+      if (wp.publicFaqs != null && wp.publicFaqs!.isNotEmpty) {
+        faqs = List.from(wp.publicFaqs!);
+      } else {
+        faqs = json.decode(workspace?.faqsJson ?? '[]');
       }
-      features.sort((a, b) {
-        final aOrder = int.tryParse(a['display_order']?.toString() ?? '0') ?? 0;
-        final bOrder = int.tryParse(b['display_order']?.toString() ?? '0') ?? 0;
-        return aOrder.compareTo(bOrder);
-      });
     } catch (_) {}
-    
-    if (features.isEmpty) {
-      final isAr = lang.currentLocale.languageCode == 'ar';
-      features = [
+
+    if (faqs.isEmpty) {
+      faqs = [
         {
-          "title": isAr ? "واجهة تعليمية فائقة التطور" : "Advanced Educational UI",
-          "description": isAr ? "نظام متجاوب بالكامل مصمم لكسر حواجز التشتت، يتيح لك الوصول للمحاضرات وترتيب جدولك بضغطة زر واحدة." : "A fully responsive system designed to eliminate distractions.",
-          "icon_name": "Layout"
+          "question": "كيف أستطيع إنشاء حساب وبدء المشاهدة؟",
+          "answer": "الأمر يستغرق ثوانٍ معدودة. اضغط على أزرار التسجيل، أدخل بياناتك أو استخدم حساب جوجل الخاص بك، ثم ابدأ في تصفح المنهج وتفعيل الكورسات."
         },
         {
-          "title": isAr ? "١٠٠٪ تشفير وحماية قوية" : "100% Encrypted & Secure",
-          "description": isAr ? "تشفير وحماية قوية" : "Strong encryption and protection for your data.",
-          "icon_name": "ShieldCheck"
+          "question": "هل الكورسات مسجلة أم يتم بثها مباشرة؟",
+          "answer": "نظامنا هجين؛ يعتمد بشكل أساسي على المحاضرات المسجلة بأعلى جودة تقنية لكي تتابعها في الوقت الذي يناسبك، بالإضافة لمراجعات دورية مباشرة."
         },
         {
-          "title": isAr ? "حافز ومكافآت" : "Motivation & Rewards",
-          "description": isAr ? "لوحات شرف وجوائز للطلاب الأوائل لتحفيز المنافسة المستمرة." : "Honor boards and awards for top students to motivate continuous competition.",
-          "icon_name": "Award"
+          "question": "ما هي طرق الدفع المتاحة لفتح محتوى الكورسات؟",
+          "answer": "نوفر طرق دفع متعددة لتناسب الجميع، تشمل المحافظ الإلكترونية المتعددة وكروت الفيزا وماستركارد، ويتم التفعيل بشكل فوري بعد الدفع."
         },
         {
-          "title": isAr ? "متابعة دقيقة مع ولي الأمر" : "Precise Parent Tracking",
-          "description": isAr ? "تقارير دورية وإشعارات لحظية بمستواك ونتائج امتحاناتك تصل مباشرة لتطبيقات الهواتف المحمولة." : "Periodic reports and instant notifications of your level and exam results sent directly to mobile apps.",
-          "icon_name": "Phone"
+          "question": "هل هناك دعم فني إذا واجهتني مشكلة بالتطبيق؟",
+          "answer": "بالتأكيد، فريقنا جاهز يومياً للرد على أي استفسار تقني أو أكاديمي لضمان سير تعليمك دون أي عقبات."
         }
       ];
     }
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.only(bottom: 16),
-          child: Text(lang.translate('platform_features') ?? 'مميزات المنصة', style: TextStyle(color: onSurface, fontSize: 20, fontWeight: FontWeight.w900, letterSpacing: -0.5)),
-        ),
-        ListView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          itemCount: features.length,
-          itemBuilder: (context, index) => _buildFeatureCard(features[index], primary, onSurface),
-        ),
-      ],
-    );
-  }
+    final lang = Provider.of<LanguageProvider>(context, listen: false);
+    final isRTL = lang.currentLocale.languageCode == 'ar';
 
-  Widget _buildFaqsSection() {
-    final faqs = [
-        {
-            "question": "كيف أستطيع إنشاء حساب وبدء المشاهدة؟",
-            "answer": "الأمر يستغرق ثوانٍ معدودة. اضغط على أزرار التسجيل، أدخل بياناتك أو استخدم حساب جوجل الخاص بك، ثم ابدأ في تصفح المنهج وتفعيل الكورسات."
-        },
-        {
-            "question": "هل الكورسات مسجلة أم يتم بثها مباشرة؟",
-            "answer": "نظامنا هجين؛ يعتمد بشكل أساسي على المحاضرات المسجلة بأعلى جودة تقنية لكي تتابعها في الوقت الذي يناسبك، بالإضافة لمراجعات دورية مباشرة."
-        },
-        {
-            "question": "ما هي طرق الدفع المتاحة لفتح محتوى الكورسات؟",
-            "answer": "نوفر طرق دفع متعددة لتناسب الجميع، تشمل المحافظ الإلكترونية المتعددة وكروت الفيزا وماستركارد، ويتم التفعيل بشكل فوري بعد الدفع."
-        },
-        {
-            "question": "هل هناك دعم فني إذا واجهتني مشكلة بالتطبيق؟",
-            "answer": "بالتأكيد، فريقنا جاهز يومياً للرد على أي استفسار تقني أو أكاديمي لضمان سير تعليمك دون أي عقبات."
-        }
-    ];
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text("الأسئلة الشائعة", style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900)),
+          Text(lang.translate('faqs') ?? (isRTL ? "الأسئلة الشائعة" : "FAQs"), style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w900)),
           const SizedBox(height: 16),
           ...faqs.map((f) => Container(
             margin: const EdgeInsets.only(bottom: 12),
@@ -1440,11 +1394,11 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
               borderRadius: BorderRadius.circular(16),
             ),
             child: ExpansionTile(
-              title: Text(f['question']!, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+              title: Text(f['question']?.toString() ?? '', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
               children: [
                 Padding(
                   padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-                  child: Text(f['answer']!, style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7), fontSize: 13, height: 1.5)),
+                  child: Text(f['answer']?.toString() ?? '', style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7), fontSize: 13, height: 1.5)),
                 ),
               ],
             ),
@@ -1743,9 +1697,8 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
                           } else if ((workspace?.logoUrl ?? wp.publicLogoUrl) != null) {
                             return Container(
                               width: 64, height: 64,
-                              padding: const EdgeInsets.all(8),
                               decoration: BoxDecoration(color: Colors.white, shape: BoxShape.circle, border: Border.all(color: wsColor.withOpacity(0.2), width: 1.5)),
-                              child: ClipRRect(borderRadius: BorderRadius.circular(24), child: Image.network((workspace?.logoUrl ?? wp.publicLogoUrl)!, fit: BoxFit.contain, errorBuilder: (c,e,s) => Icon(Icons.school_rounded, color: wsColor, size: 32))),
+                              child: ClipRRect(borderRadius: BorderRadius.circular(32), child: Image.network((workspace?.logoUrl ?? wp.publicLogoUrl)!, fit: BoxFit.cover, errorBuilder: (c,e,s) => Icon(Icons.school_rounded, color: wsColor, size: 32))),
                             );
                           } else {
                             return Container(
@@ -1791,15 +1744,6 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
                   _buildSidebarAction(icon: Icons.grid_view_rounded, title: lang.translate('dashboard'), onTap: () => Navigator.pop(context), isSelected: true, wsColor: wsColor),
                   _buildSidebarAction(icon: Icons.library_books_rounded, title: lang.translate('all_courses') ?? 'All Courses', onTap: () { Navigator.pop(context); _navigateToTab(1); }, wsColor: wsColor),
                   _buildSidebarAction(icon: Icons.favorite_rounded, title: lang.translate('favorites') ?? 'Favorites', onTap: () { Navigator.pop(context); if (wp.isGuest) Navigator.pushNamedAndRemoveUntil(context, '/onboarding', (r) => false); else Navigator.pushNamed(context, '/favorites'); }, wsColor: wsColor),
-                  
-                  const SizedBox(height: 16),
-                  Padding(
-                    padding: const EdgeInsets.only(left: 12, bottom: 8, top: 8),
-                    child: Text((lang.translate('academy') ?? 'ACADEMY').toUpperCase(), style: TextStyle(color: onSurface.withOpacity(0.3), fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 1.5)),
-                  ),
-                  _buildSidebarAction(icon: Icons.auto_awesome_rounded, title: lang.translate('features') ?? 'Features', onTap: () { Navigator.pop(context); Navigator.pushNamed(context, '/highlights'); }, wsColor: wsColor),
-                  _buildSidebarAction(icon: Icons.help_outline_rounded, title: lang.translate('faqs') ?? 'FAQs', onTap: () { Navigator.pop(context); Navigator.pushNamed(context, '/faqs'); }, wsColor: wsColor),
-                  
                   const SizedBox(height: 16),
                   Padding(
                     padding: const EdgeInsets.only(left: 12, bottom: 8, top: 8),

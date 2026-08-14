@@ -1,27 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
-import 'package:elmasa/services/security_service.dart';
+import 'package:smart/services/security_service.dart';
 import 'package:flutter_widget_from_html_core/flutter_widget_from_html_core.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:no_screenshot/no_screenshot.dart';
 import 'package:google_fonts/google_fonts.dart' as modern_fonts;
-import 'package:elmasa/providers/workspace_provider.dart';
-import 'package:elmasa/providers/language_provider.dart';
-import 'package:elmasa/providers/theme_provider.dart';
+import 'package:smart/providers/workspace_provider.dart';
+import 'package:smart/providers/language_provider.dart';
+import 'package:smart/providers/theme_provider.dart';
 import 'package:chewie/chewie.dart';
 import 'package:video_player/video_player.dart';
 import 'package:flutter_pdfview/flutter_pdfview.dart';
-import 'package:elmasa/screens/simple_scanner_screen.dart';
-import 'package:elmasa/widgets/premium_loader.dart';
+import 'package:smart/screens/simple_scanner_screen.dart';
+import 'package:smart/widgets/premium_loader.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:http/http.dart' as http;
 import 'dart:async';
 import 'dart:io';
 import 'package:file_picker/file_picker.dart';
-import 'package:elmasa/config/app_config.dart';
-import 'package:elmasa/widgets/watermark_overlay.dart';
+import 'package:smart/config/app_config.dart';
+import 'package:smart/widgets/watermark_overlay.dart';
 
 void _showImageModal(BuildContext context, String imageUrl) {
   showDialog(
@@ -683,8 +683,51 @@ class _MaterialViewerScreenState extends State<MaterialViewerScreen> {
       streamUrl = RegExp(r'src="([^"]+)"').firstMatch(url)?.group(1) ?? url;
     }
 
+    // AUTO-CONVERT GOOGLE DRIVE PREVIEW LINKS TO DIRECT STREAM LINKS
+    if (streamUrl.contains('drive.google.com')) {
+      String? driveId;
+      if (streamUrl.contains('/file/d/')) {
+        final parts = streamUrl.split('/file/d/');
+        if (parts.length > 1) {
+          driveId = parts[1].split('/')[0].split('?')[0];
+        }
+      } else if (streamUrl.contains('id=')) {
+        try {
+          final uri = Uri.parse(streamUrl);
+          driveId = uri.queryParameters['id'];
+        } catch (_) {}
+      }
+      
+      if (driveId != null && driveId.isNotEmpty) {
+        streamUrl = 'https://docs.google.com/uc?export=download&id=$driveId';
+        debugPrint('✅ Transformed Google Drive URL to direct stream: $streamUrl');
+
+        // Dynamically resolve virus warning bypass for large files
+        try {
+          final response = await http.get(Uri.parse(streamUrl)).timeout(const Duration(seconds: 7));
+          if (response.statusCode == 200 && response.body.contains('confirm=')) {
+            final match = RegExp(r'confirm=([^&"]+)').firstMatch(response.body);
+            if (match != null) {
+              final confirmToken = match.group(1);
+              streamUrl = 'https://docs.google.com/uc?export=download&confirm=$confirmToken&id=$driveId';
+              debugPrint('✅ Resolved Google Drive warning bypass confirm token: $confirmToken');
+            }
+          }
+        } catch (e) {
+          debugPrint('⚠️ Google Drive warning bypass check failed: $e');
+        }
+      }
+    }
+
+    // ALWAYS convert host to video.mediadelivery.net for raw video playback
+    if (streamUrl.contains('iframe.mediadelivery.net') || streamUrl.contains('player.mediadelivery.net')) {
+      streamUrl = streamUrl
+          .replaceAll('iframe.mediadelivery.net', 'video.mediadelivery.net')
+          .replaceAll('player.mediadelivery.net', 'video.mediadelivery.net');
+    }
+
     // AUTO-CONVERT BUNNY PLAYER URLS TO HLS STREAMS
-    if ((streamUrl.contains('iframe.mediadelivery.net') || streamUrl.contains('player.mediadelivery.net')) && !streamUrl.contains('.m3u8')) {
+    if (streamUrl.contains('video.mediadelivery.net') && !streamUrl.contains('.m3u8')) {
       try {
         final uri = Uri.parse(streamUrl);
         final segments = uri.pathSegments;
@@ -733,8 +776,19 @@ class _MaterialViewerScreenState extends State<MaterialViewerScreen> {
     });
 
     try {
+      VideoFormat? format;
+      final lowercaseUrl = streamUrl.toLowerCase();
+      if (lowercaseUrl.contains('.m3u8') || lowercaseUrl.contains('m3u8')) {
+        format = VideoFormat.hls;
+      } else if (lowercaseUrl.contains('.mpd') || lowercaseUrl.contains('mpd')) {
+        format = VideoFormat.dash;
+      } else if (lowercaseUrl.contains('.ism') || lowercaseUrl.contains('ism')) {
+        format = VideoFormat.ss;
+      }
+
       _videoPlayerController = VideoPlayerController.networkUrl(
         Uri.parse(streamUrl),
+        formatHint: format,
         httpHeaders: httpHeaders,
         videoPlayerOptions: VideoPlayerOptions(
           mixWithOthers: false,

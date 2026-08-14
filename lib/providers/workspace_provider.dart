@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:elmasa/models/workspace.dart';
-import 'package:elmasa/providers/theme_provider.dart';
-import 'package:elmasa/services/api_service.dart';
+import 'package:smart/models/workspace.dart';
+import 'package:smart/providers/theme_provider.dart';
+import 'package:smart/services/api_service.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart' as launcher;
 import 'dart:convert';
@@ -45,6 +45,7 @@ class WorkspaceProvider with ChangeNotifier {
   String? publicCurrency;
   List<dynamic>? publicCourses;
   List<dynamic>? publicCategories;
+  List<dynamic>? publicFaqs;
 
   bool enableRegistration = true;
   bool enableSocialLogin = true;
@@ -58,6 +59,17 @@ class WorkspaceProvider with ChangeNotifier {
   String get watermarkFields => _watermarkFields;
   String get watermarkScope => _watermarkScope;
   int get watermarkIntervalSeconds => _watermarkIntervalSeconds;
+
+  // ── MOBILE SETTINGS ────────────────────────────────────────────────────────
+  String? mobileLatestVersion;
+  String? mobileMinSupportedVersion;
+  bool mobileForceUpdate = false;
+  String? mobileAndroidUrl;
+  String? mobileIosUrl;
+  bool mobileMaintenanceMode = false;
+  String? mobileMaintenanceMessage;
+  String? mobileReleaseNotes;
+
 
   void setRequireLogin(bool value) {
     _requireLogin = value;
@@ -137,11 +149,65 @@ class WorkspaceProvider with ChangeNotifier {
         publicCategories = res['categories'] as List?;
       }
       
+      if (res['faqs'] is List) {
+        publicFaqs = res['faqs'] as List?;
+      }
+      
       notifyListeners();
     } catch (e) {
       debugPrint('Error parsing public settings in provider: $e');
     }
     return res;
+  }
+
+  Future<Map<String, dynamic>> getMobileSettings(String host) async {
+    final res = await _apiService.getMobileSettings(host);
+    try {
+      final data = (res['data'] is Map ? Map<String, dynamic>.from(res['data']) : null) ?? 
+                   (res['raw'] is Map ? Map<String, dynamic>.from(res['raw']) : null) ?? 
+                   Map<String, dynamic>.from(res);
+                   
+      mobileLatestVersion = data['latestVersion']?.toString() ?? data['mobile_app_version']?.toString();
+      mobileMinSupportedVersion = data['minSupportedVersion']?.toString() ?? data['mobile_min_version']?.toString();
+      
+      final forceUp = data['forceUpdate'] ?? data['mobile_force_update'];
+      mobileForceUpdate = forceUp == true || forceUp == 1 || forceUp.toString() == '1' || forceUp.toString().toLowerCase() == 'true';
+      
+      mobileAndroidUrl = data['androidUrl']?.toString() ?? data['mobile_android_url']?.toString();
+      mobileIosUrl = data['iosUrl']?.toString() ?? data['mobile_ios_url']?.toString();
+      
+      final maint = data['maintenanceMode'] ?? data['mobile_maintenance_mode'];
+      mobileMaintenanceMode = maint == true || maint == 1 || maint.toString() == '1' || maint.toString().toLowerCase() == 'true';
+      
+      mobileMaintenanceMessage = data['maintenanceMessage']?.toString() ?? data['mobile_maintenance_msg']?.toString();
+      mobileReleaseNotes = data['releaseNotes']?.toString() ?? data['mobile_release_notes']?.toString();
+      
+      if (data['appName'] != null) {
+        publicSiteName = data['appName'].toString();
+      } else if (data['mobile_app_name'] != null) {
+        publicSiteName = data['mobile_app_name'].toString();
+      }
+      
+      if (data['appIcon'] != null) {
+        publicLogoUrl = data['appIcon'].toString();
+      } else if (data['mobile_app_icon'] != null) {
+        publicLogoUrl = data['mobile_app_icon'].toString();
+      }
+      
+      notifyListeners();
+    } catch (e) {
+      debugPrint('Error parsing mobile settings in provider: $e');
+    }
+    return res;
+  }
+
+  Future<dynamic> request(
+    String method,
+    String path, {
+    Map<String, dynamic>? body,
+    Workspace? overrideWorkspace,
+  }) async {
+    return _apiService.request(method, path, body: body, overrideWorkspace: overrideWorkspace);
   }
 
   Future<void> init() async {
@@ -317,7 +383,7 @@ class WorkspaceProvider with ChangeNotifier {
   Future<void> addWorkspaceManual(String host, String email, String password) async {
     final loginData = await _apiService.login(host, email, password);
     final token = loginData['token'];
-    final user = loginData['user'];
+    final Map<String, dynamic>? user = loginData['user'] is Map ? Map<String, dynamic>.from(loginData['user']) : null;
     final actualHost = loginData['redirectedHost'] ?? host;
     final tenantName = actualHost.split('.').first;
 
@@ -326,7 +392,7 @@ class WorkspaceProvider with ChangeNotifier {
       tenant: tenantName,
       host: actualHost,
       name: tenantName.toUpperCase(),
-      studentName: user['name'] ?? '',
+      studentName: user?['name'] ?? '',
       email: email,
       token: token,
       deviceId: deviceId,
@@ -356,17 +422,17 @@ class WorkspaceProvider with ChangeNotifier {
       googleId: googleId,
     );
     final token = loginData['token'];
-    final user = loginData['user'];
+    final Map<String, dynamic>? user = loginData['user'] is Map ? Map<String, dynamic>.from(loginData['user']) : null;
     final actualHost = loginData['redirectedHost'] ?? host;
     final tenantName = actualHost.split('.').first;
-    final userEmail = user['email'] ?? email;
+    final userEmail = user?['email'] ?? email;
 
     final workspace = Workspace(
       id: '$tenantName-$userEmail',
       tenant: tenantName,
       host: actualHost,
       name: tenantName.toUpperCase(),
-      studentName: user['name'] ?? name,
+      studentName: user?['name'] ?? name,
       email: userEmail,
       studentPhotoUrl: photoUrl,
       token: token,
@@ -728,8 +794,14 @@ class WorkspaceProvider with ChangeNotifier {
   Future<void> launchUrl(String url) async {
     final uri = Uri.parse(url);
     try {
-      if (await launcher.canLaunchUrl(uri)) {
-        await launcher.launchUrl(uri, mode: launcher.LaunchMode.externalApplication);
+      bool launched = false;
+      try {
+        launched = await launcher.launchUrl(uri, mode: launcher.LaunchMode.externalApplication);
+      } catch (e) {
+        debugPrint('Failed to launch with externalApplication: $e');
+      }
+      if (!launched) {
+        await launcher.launchUrl(uri, mode: launcher.LaunchMode.platformDefault);
       }
     } catch (e) {
       debugPrint('Error launching URL: $e');

@@ -5,12 +5,12 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 import 'package:provider/provider.dart';
-import 'package:elmasa/providers/workspace_provider.dart';
-import 'package:elmasa/providers/language_provider.dart';
-import 'package:elmasa/providers/theme_provider.dart';
-import 'package:elmasa/widgets/premium_loader.dart';
-import 'package:elmasa/widgets/official_google_logo.dart';
-import 'package:elmasa/config/app_config.dart';
+import 'package:smart/providers/workspace_provider.dart';
+import 'package:smart/providers/language_provider.dart';
+import 'package:smart/providers/theme_provider.dart';
+import 'package:smart/widgets/premium_loader.dart';
+import 'package:smart/widgets/official_google_logo.dart';
+import 'package:smart/config/app_config.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -614,10 +614,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                               child: (wp.publicLogoUrl != null && wp.publicLogoUrl!.isNotEmpty)
                                   ? Image.network(
                                       wp.publicLogoUrl!,
-                                      fit: BoxFit.contain,
-                                      errorBuilder: (c, e, s) => Image.asset('assets/logo.png', fit: BoxFit.contain),
+                                      fit: BoxFit.cover,
+                                      errorBuilder: (c, e, s) => Image.asset('assets/logo.png', fit: BoxFit.cover),
                                     )
-                                  : Image.asset('assets/logo.png', fit: BoxFit.contain),
+                                  : Image.asset('assets/logo.png', fit: BoxFit.cover),
                             ),
                           ),
                         ),

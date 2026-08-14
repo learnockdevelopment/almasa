@@ -1,15 +1,15 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:elmasa/models/workspace.dart';
-import 'package:elmasa/models/app_state.dart';
+import 'package:smart/models/workspace.dart';
+import 'package:smart/models/app_state.dart';
 import 'package:uuid/uuid.dart';
 import 'dart:io';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/foundation.dart';
-import 'package:elmasa/config/app_config.dart';
-import 'package:elmasa/services/security_service.dart';
-import 'package:elmasa/main.dart';
+import 'package:smart/config/app_config.dart';
+import 'package:smart/services/security_service.dart';
+import 'package:smart/main.dart';
 
 class SessionExpiredException implements Exception {
   final String message;
@@ -35,7 +35,7 @@ class DeviceMismatchException implements Exception {
 
 class UserBannedException implements Exception {
   final String message;
-  UserBannedException([this.message = 'Your account has been banned.']);
+  UserBannedException([this.message = 'user_banned_msg']);
   @override
   String toString() => message;
 }
@@ -199,6 +199,9 @@ class ApiService {
   }
 
   Future<void> addWorkspace(Workspace workspace) async {
+    if (_state == null) {
+      await init();
+    }
     final workspaces = List<Workspace>.from(_state!.workspaces);
     workspaces.removeWhere((w) => w.id == workspace.id);
     workspaces.add(workspace);
@@ -210,6 +213,9 @@ class ApiService {
   }
 
   Future<void> switchWorkspace(String id) async {
+    if (_state == null) {
+      await init();
+    }
     _state = AppState(
       workspaces: _state!.workspaces,
       activeWorkspaceId: id,
@@ -228,10 +234,6 @@ class ApiService {
 
   Future<void> _handleBannedState() async {
     await clearSession();
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setBool('is_locally_banned', true);
-    } catch (_) {}
     DerasyApp.navigatorKey.currentState?.pushNamedAndRemoveUntil('/banned', (route) => false);
   }
 
@@ -339,10 +341,6 @@ class ApiService {
       debugPrint('⚙️ [SITE SETTINGS RES STATUS] ${response.statusCode}');
       debugPrint('⚙️ [SITE SETTINGS RES BODY] ${response.body}');
     }
-    if (response.statusCode == 403) {
-      await _handleBannedState();
-      throw UserBannedException();
-    }
     if (response.statusCode == 401) {
       await clearSession();
       throw SessionExpiredException();
@@ -354,7 +352,36 @@ class ApiService {
     } catch (e) {
       debugPrint('❌ Failed to decode JSON: ${e.toString()}');
       debugPrint('📄 Response body (first 100 chars): ${response.body.length > 100 ? response.body.substring(0, 100) : response.body}');
+      if (response.statusCode == 403) {
+        await _handleBannedState();
+        throw UserBannedException();
+      }
       throw Exception('Invalid server response (not JSON): ${response.body}');
+    }
+
+    if (response.statusCode == 403) {
+      bool isBan = false;
+      if (data is Map) {
+        final user = data['user'] as Map<String, dynamic>?;
+        if (user != null) {
+          final isBanned = user['is_banned'];
+          if (isBanned == 1 || isBanned == true || isBanned.toString() == '1' || isBanned.toString().toLowerCase() == 'true') {
+            isBan = true;
+          }
+        }
+        final errorRaw = (data['error'] ?? data['message'] ?? '').toString();
+        final errorMsg = errorRaw.toLowerCase();
+        if (errorRaw.contains('حظر') || errorMsg.contains('banned') || errorMsg.contains('blocked') || errorMsg.contains('suspend') || errorMsg.contains('suspended')) {
+          isBan = true;
+        }
+      }
+      if (isBan) {
+        await _handleBannedState();
+        throw UserBannedException();
+      } else {
+        final errorRaw = (data is Map ? (data['error'] ?? data['message'] ?? '') : '').toString();
+        throw Exception(errorRaw.isNotEmpty ? errorRaw : 'Access forbidden');
+      }
     }
 
     if (data is Map) {
@@ -1066,6 +1093,24 @@ class ApiService {
       return parseJsonResponse(response);
     }
     throw Exception('Failed to load site settings: ${response.statusCode}');
+  }
+
+  Future<Map<String, dynamic>> getMobileSettings(String host) async {
+    await _checkDeviceSafety();
+    final uri = Uri.https(host, '/api/mobile/settings');
+    debugPrint('📱 [MOBILE SETTINGS REQ] GET $uri');
+    final response = await http.get(uri, headers: {
+      'Accept': 'application/json',
+      'site_link': kSiteUrl,
+      'site-link': kSiteUrl,
+      'X-Site-Link': kSiteUrl,
+    }).timeout(const Duration(seconds: 15));
+    debugPrint('📱 [MOBILE SETTINGS RES] Status: ${response.statusCode}');
+    debugPrint('📱 [MOBILE SETTINGS RES BODY]: ${response.body}');
+    if (response.statusCode == 200) {
+      return parseJsonResponse(response);
+    }
+    throw Exception('Failed to load mobile settings: ${response.statusCode}');
   }
 
   Future<Map<String, dynamic>> redeemCoupon(String code, {int? courseId}) async {

@@ -2,11 +2,11 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
-import 'package:elmasa/providers/workspace_provider.dart';
-import 'package:elmasa/providers/language_provider.dart';
-import 'package:elmasa/config/app_config.dart';
+import 'package:smart/providers/workspace_provider.dart';
+import 'package:smart/providers/language_provider.dart';
+import 'package:smart/config/app_config.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
-import 'package:elmasa/services/api_service.dart';
+import 'package:smart/services/api_service.dart';
 import 'error_screen.dart';
 
 class RegisterScreen extends StatefulWidget {
@@ -16,7 +16,7 @@ class RegisterScreen extends StatefulWidget {
   State<RegisterScreen> createState() => _RegisterScreenState();
 }
 
-class _RegisterScreenState extends State<RegisterScreen> {
+class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProviderStateMixin {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _userController = TextEditingController();
   final TextEditingController _passController = TextEditingController();
@@ -41,15 +41,21 @@ class _RegisterScreenState extends State<RegisterScreen> {
     {'name': 'Iraq', 'code': '+964', 'flag': '🇮🇶', 'nameAr': 'العراق'},
   ];
   Map<String, String>? _selectedCountry;
+  late AnimationController _animController;
 
   @override
   void initState() {
     super.initState();
     _selectedCountry = _countries[0]; // Egypt as default
+    _animController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 10),
+    )..repeat(reverse: true);
   }
 
   @override
   void dispose() {
+    _animController.dispose();
     _nameController.dispose();
     _userController.dispose();
     _passController.dispose();
@@ -58,6 +64,61 @@ class _RegisterScreenState extends State<RegisterScreen> {
     _birthDateController.dispose();
     _otpController.dispose();
     super.dispose();
+  }
+
+  Widget _buildAnimatedBackground(Color primaryColor, bool isDark) {
+    return AnimatedBuilder(
+      animation: _animController,
+      builder: (context, child) {
+        return Stack(
+          children: [
+            // Fixed base gradient
+            Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: isDark 
+                      ? [const Color(0xFF0F172A), const Color(0xFF020617)]
+                      : [const Color(0xFFF8FAFC), const Color(0xFFF1F5F9)],
+                ),
+              ),
+            ),
+            // Floating Bloom 1
+            Positioned(
+              top: -100 + (50 * _animController.value),
+              right: -100 + (30 * (1 - _animController.value)),
+              child: _buildBloom(primaryColor.withOpacity(isDark ? 0.2 : 0.12), 400),
+            ),
+            // Floating Bloom 2
+            Positioned(
+              bottom: -50 + (40 * (1 - _animController.value)),
+              left: -50 + (60 * _animController.value),
+              child: _buildBloom(const Color(0xFFF43F5E).withOpacity(isDark ? 0.15 : 0.08), 350),
+            ),
+            // Floating Bloom 3 (Center)
+            Positioned(
+              top: MediaQuery.of(context).size.height * 0.4,
+              left: MediaQuery.of(context).size.width * 0.1,
+              child: _buildBloom(const Color(0xFF8B5CF6).withOpacity(isDark ? 0.08 : 0.05), 300),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildBloom(Color color, double size) {
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        gradient: RadialGradient(
+          colors: [color, color.withOpacity(0)],
+        ),
+      ),
+    );
   }
 
   void _showCountrySelector() {
@@ -660,29 +721,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
       ),
       body: Stack(
         children: [
-          // Background blobs for visual richness
-          Positioned(
-            top: -100,
-            right: -100,
-            child: Container(
-              width: 320,
-              height: 320,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: primaryColor.withOpacity(isDark ? 0.12 : 0.08),
-              ),
-            ),
-          ),
-          Positioned(
-            bottom: -60,
-            left: -60,
-            child: Container(
-              width: 260,
-              height: 260,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: primaryColor.withOpacity(isDark ? 0.08 : 0.05),
-              ),
+          // Enhanced Background Design with Animated Gradients
+          _buildAnimatedBackground(primaryColor, isDark),
+          
+          // Subtle Blur Overlay
+          Positioned.fill(
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 30, sigmaY: 30),
+              child: Container(color: Colors.transparent),
             ),
           ),
 
@@ -702,7 +748,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ),
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(20),
-                        child: Image.asset('assets/logo.png', fit: BoxFit.contain),
+                        child: Image.asset('assets/logo.png', fit: BoxFit.cover),
                       ),
                     ),
                     const SizedBox(height: 16),

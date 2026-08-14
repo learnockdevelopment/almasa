@@ -1,11 +1,11 @@
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:elmasa/providers/workspace_provider.dart';
-import 'package:elmasa/providers/language_provider.dart';
-import 'package:elmasa/providers/theme_provider.dart';
-import 'package:elmasa/widgets/premium_loader.dart';
-import 'package:elmasa/screens/simple_scanner_screen.dart';
+import 'package:smart/providers/workspace_provider.dart';
+import 'package:smart/providers/language_provider.dart';
+import 'package:smart/providers/theme_provider.dart';
+import 'package:smart/widgets/premium_loader.dart';
+import 'package:smart/screens/simple_scanner_screen.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 class CourseDetailScreen extends StatefulWidget {
@@ -22,6 +22,8 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
   bool _isSubscribing = false;
   String? _activeFilter; // null = ALL
   final TextEditingController _couponController = TextEditingController();
+  bool _isWhiteboardActive = false;
+  int? _whiteboardId;
 
   @override
   void initState() {
@@ -42,6 +44,19 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
     try {
       final wp = Provider.of<WorkspaceProvider>(context, listen: false);
       _courseData = await wp.getCourse(widget.courseId);
+      
+      // Check if whiteboard is active for this course
+      if (!wp.isGuest) {
+        try {
+          final res = await wp.request('GET', '/courses/${widget.courseId}/whiteboard');
+          if (res != null && res['whiteboard_id'] != null) {
+            _whiteboardId = res['whiteboard_id'];
+            _isWhiteboardActive = true;
+          }
+        } catch (_) {
+          _isWhiteboardActive = false;
+        }
+      }
     } catch (e) {
       final wp = Provider.of<WorkspaceProvider>(context, listen: false);
       if (!wp.isGuest && (e.toString().contains('Session expired') || e.toString().contains('unauthorized'))) {
@@ -1019,6 +1034,40 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
                           ),
                         ),
                         const SizedBox(height: 16),
+                        if (isEnrolled && _isWhiteboardActive) ...[
+                          Container(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(16),
+                              boxShadow: [BoxShadow(color: Colors.purple.withOpacity(0.12), blurRadius: 20, spreadRadius: -5)],
+                            ),
+                            child: ElevatedButton(
+                              onPressed: () {
+                                Navigator.pushNamed(context, '/whiteboard', arguments: widget.courseId);
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFF8B5CF6),
+                                foregroundColor: Colors.white,
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                                padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+                                elevation: 0,
+                              ),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  const Icon(Icons.border_color_rounded, size: 22),
+                                  const SizedBox(width: 10),
+                                  Text(
+                                    lang.translate('whiteboard') ?? (lang.currentLocale.languageCode == 'ar' ? 'السبورة التفاعلية' : 'Interactive Whiteboard'),
+                                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                                  ),
+                                  const SizedBox(width: 10),
+                                  const Icon(Icons.arrow_forward_ios_rounded, size: 12),
+                                ],
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                        ],
                       ],
 
                     // PROGRESS (enrolled only)

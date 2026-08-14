@@ -1,13 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:provider/provider.dart';
-import 'package:elmasa/providers/workspace_provider.dart';
-import 'package:elmasa/providers/language_provider.dart';
-import 'package:elmasa/widgets/premium_loader.dart';
+import 'package:smart/providers/workspace_provider.dart';
+import 'package:smart/providers/language_provider.dart';
+import 'package:smart/widgets/premium_loader.dart';
 import 'package:no_screenshot/no_screenshot.dart';
-import 'package:elmasa/services/security_service.dart';
-import 'package:elmasa/config/app_config.dart';
+import 'package:smart/services/security_service.dart';
+import 'package:smart/config/app_config.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:package_info_plus/package_info_plus.dart' as package_info_plus;
+import 'package:google_fonts/google_fonts.dart';
+import 'package:smart/screens/error_screen.dart';
+import 'package:smart/screens/maintenance_screen.dart';
+import 'package:smart/screens/update_screen.dart';
 
 import '../providers/theme_provider.dart';
 import '../services/api_service.dart';
@@ -51,16 +56,76 @@ class _SplashScreenState extends State<SplashScreen>
 
     final wp = Provider.of<WorkspaceProvider>(context, listen: false);
     
+    // Check Mobile App Settings first for force update and maintenance status
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final isLocallyBanned = prefs.getBool('is_locally_banned') ?? false;
-      if (isLocallyBanned) {
+      final mobileSettings = await wp.getMobileSettings(kSiteHost);
+      
+      // 1. Check Maintenance Mode
+      if (wp.mobileMaintenanceMode) {
         if (mounted) {
-          Navigator.of(context).pushReplacementNamed('/banned');
+          final isRTL = Provider.of<LanguageProvider>(context, listen: false).currentLocale.languageCode == 'ar';
+          final mTitle = isRTL ? 'وضع الصيانة' : 'Maintenance Mode';
+          final mMessage = wp.mobileMaintenanceMessage ?? 
+              (isRTL 
+                ? 'التطبيق حالياً في وضع الصيانة. يرجى المحاولة لاحقاً.' 
+                : 'The application is currently undergoing maintenance. Please try again later.');
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(
+              builder: (context) => MaintenanceScreen(
+                title: mTitle,
+                message: mMessage,
+                onRefresh: () => Navigator.of(context).pushReplacementNamed('/'),
+              ),
+            ),
+          );
         }
         return;
       }
-    } catch (_) {}
+      
+      // 2. Check Force Update
+      if (wp.mobileLatestVersion != null || wp.mobileMinSupportedVersion != null) {
+        final package_info = await package_info_plus.PackageInfo.fromPlatform();
+        final currentVersion = package_info.version;
+        
+        bool isVersionGreater(String siteV, String appV) {
+          final siteParts = siteV.split('.').map((e) => int.tryParse(e) ?? 0).toList();
+          final appParts = appV.split('.').map((e) => int.tryParse(e) ?? 0).toList();
+          final maxLen = siteParts.length > appParts.length ? siteParts.length : appParts.length;
+          for (int i = 0; i < maxLen; i++) {
+            final siteVal = i < siteParts.length ? siteParts[i] : 0;
+            final appVal = i < appParts.length ? appParts[i] : 0;
+            if (siteVal > appVal) return true;
+            if (siteVal < appVal) return false;
+          }
+          return false;
+        }
+
+        bool isUpdateNeeded = false;
+        if (wp.mobileMinSupportedVersion != null && isVersionGreater(wp.mobileMinSupportedVersion!, currentVersion)) {
+          isUpdateNeeded = true;
+        }
+        if (wp.mobileLatestVersion != null && isVersionGreater(wp.mobileLatestVersion!, currentVersion)) {
+          isUpdateNeeded = true;
+        }
+        
+        if (isUpdateNeeded) {
+          if (mounted) {
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(
+                builder: (context) => UpdateScreen(
+                  releaseNotes: wp.mobileReleaseNotes,
+                  androidUrl: wp.mobileAndroidUrl,
+                  iosUrl: wp.mobileIosUrl,
+                ),
+              ),
+            );
+          }
+          return;
+        }
+      }
+    } catch (e) {
+      debugPrint('Error handling Mobile Settings API on launch: $e');
+    }
 
     // Run workspace init first
     await wp.init();
@@ -79,7 +144,9 @@ class _SplashScreenState extends State<SplashScreen>
     if (wp.activeWorkspace != null) {
       try {
         final w = wp.activeWorkspace!;
-        Provider.of<ThemeProvider>(context, listen: false).setTenant(w.theme, themeColor: w.themeColor);
+        if (mounted) {
+          Provider.of<ThemeProvider>(context, listen: false).setTenant(w.theme, themeColor: w.themeColor);
+        }
         await wp.eagerLoad(context);
         if (mounted) {
           Navigator.of(context).pushReplacementNamed('/dashboard');
@@ -98,7 +165,7 @@ class _SplashScreenState extends State<SplashScreen>
         }
       }
       // Fetch in background for other settings
-      wp.getPublicSiteSettings('elmasa-academy.learnock.com').catchError((_) => <String, dynamic>{});
+      wp.getPublicSiteSettings(kSiteHost).catchError((_) => <String, dynamic>{});
       return;
     }
 
@@ -115,10 +182,14 @@ class _SplashScreenState extends State<SplashScreen>
       debugPrint('ℹ️ require_login raw value: $rl (type: ${rl.runtimeType})');
       reqLogin = rl == true || rl == 1 || rl.toString() == '1' || rl.toString().toLowerCase() == 'true';
       debugPrint('ℹ️ reqLogin parsed value: $reqLogin');
-      wp.publicSiteName = settings['site_name']?.toString() ?? settingsRes['site_name']?.toString();
-      wp.publicLogoUrl = settings['logo_url']?.toString() ?? settingsRes['logo_url']?.toString();
+      if (wp.publicSiteName == null) {
+        wp.publicSiteName = settings['site_name']?.toString() ?? settingsRes['site_name']?.toString();
+      }
+      if (wp.publicLogoUrl == null) {
+        wp.publicLogoUrl = settings['logo_url']?.toString() ?? settingsRes['logo_url']?.toString();
+      }
       final pubColor = ApiService.extractAdminColor(settingsRes);
-      if (pubColor != null) {
+      if (pubColor != null && mounted) {
          Provider.of<ThemeProvider>(context, listen: false).setTenant('default', themeColor: pubColor);
       }
     } catch (e) {

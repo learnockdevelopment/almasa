@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
-import 'package:elmasa/providers/workspace_provider.dart';
-import 'package:elmasa/providers/language_provider.dart';
-import 'package:elmasa/services/security_service.dart';
+import 'package:smart/providers/workspace_provider.dart';
+import 'package:smart/providers/language_provider.dart';
+import 'package:smart/services/security_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart' as url_launcher;
 
 class BannedScreen extends StatelessWidget {
   const BannedScreen({super.key});
@@ -71,8 +72,8 @@ class BannedScreen extends StatelessWidget {
                   children: [
                     Text(
                       isRTL
-                          ? 'تم إيقاف حسابك من قبل إدارة الأكاديمية لمخالفة شروط الاستخدام. يرجى التواصل مع الدعم الفني لحل المشكلة.'
-                          : 'Your account has been suspended by the academy administrator for violating the terms of use. Please contact support.',
+                          ? 'تم إيقاف حسابك من قبل إدارة الأكاديمية لمخالفة شروط الاستخدام. يجب إلغاء ربط هذا الجهاز أولاً لتتمكن من المتابعة. يرجى التواصل مع الدعم الفني.'
+                          : 'Your account has been suspended by the academy administrator for violating the terms of use. You must unlink this device first to proceed. Please contact support.',
                       style: GoogleFonts.cairo(
                         color: Colors.white70,
                         fontSize: 13,
@@ -90,10 +91,6 @@ class BannedScreen extends StatelessWidget {
                 child: ElevatedButton(
                   onPressed: () async {
                     await wp.logout();
-                    try {
-                      final prefs = await SharedPreferences.getInstance();
-                      await prefs.remove('is_locally_banned');
-                    } catch (_) {}
                     if (context.mounted) {
                       Navigator.of(context).pushNamedAndRemoveUntil('/onboarding', (route) => false);
                     }
@@ -112,8 +109,7 @@ class BannedScreen extends StatelessWidget {
                     style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 14),
                   ),
                 ),
-              ),
-            ],
+              )],
           ),
         ),
       ),
