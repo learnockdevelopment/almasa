@@ -41,8 +41,8 @@ def update_android_configs():
     if os.path.exists(app_gradle):
         with open(app_gradle, "r", encoding="utf-8") as f:
             content = f.read()
-        content = content.replace('namespace = "com.omran_college.app"', 'namespace = "com.elprofvirus.app"')
-        content = content.replace('applicationId = "com.omran_college.app"', 'applicationId = "com.elprofvirus.app"')
+        content = content.replace('namespace = "com.omran_college.app"', 'namespace = "com.elmasa.app"')
+        content = content.replace('applicationId = "com.omran_college.app"', 'applicationId = "com.elmasa.app"')
         with open(app_gradle, "w", encoding="utf-8") as f:
             f.write(content)
 
@@ -51,7 +51,7 @@ def update_android_configs():
     if os.path.exists(root_gradle):
         with open(root_gradle, "r", encoding="utf-8") as f:
             content = f.read()
-        content = content.replace('namespace = "com.learnock.${project.name.replace(\'-\', \'_\')}"', 'namespace = "com.elprofmath.${project.name.replace(\'-\', \'_\')}"')
+        content = content.replace('namespace = "com.learnock.${project.name.replace(\'-\', \'_\')}"', 'namespace = "com.elmasa.${project.name.replace(\'-\', \'_\')}"')
         with open(root_gradle, "w", encoding="utf-8") as f:
             f.write(content)
 
@@ -72,7 +72,7 @@ def update_android_configs():
     new_activity_path = os.path.join(new_kotlin_dir, "MainActivity.kt")
     
     with open(new_activity_path, "w", encoding="utf-8") as f:
-        f.write("package com.elprofvirus.app
+        f.write("package com.elmasa.app
 \n\nimport io.flutter.embedding.android.FlutterActivity\n\nclass MainActivity: FlutterActivity()\n")
     
     # Remove old MainActivity.kt if it exists
@@ -98,7 +98,7 @@ def update_ios_configs():
     if os.path.exists(pbxproj):
         with open(pbxproj, "r", encoding="utf-8") as f:
             content = f.read()
-        content = content.replace("PRODUCT_BUNDLE_IDENTIFIER = com.learnock.learnockDrm;", "PRODUCT_BUNDLE_IDENTIFIER = com.elprofvirus.app
+        content = content.replace("PRODUCT_BUNDLE_IDENTIFIER = com.learnock.learnockDrm;", "PRODUCT_BUNDLE_IDENTIFIER = com.elmasa.app
 ;")
         content = content.replace("INFOPLIST_KEY_CFBundleDisplayName = \"AL Masa\";", "INFOPLIST_KEY_CFBundleDisplayName = \"AL Masa\";")
         with open(pbxproj, "w", encoding="utf-8") as f:
@@ -113,8 +113,8 @@ def update_macos_configs():
         with open(app_info, "r", encoding="utf-8") as f:
             content = f.read()
         content = content.replace("PRODUCT_NAME = learnock_drm", "PRODUCT_NAME = elmasa")
-        content = content.replace("PRODUCT_BUNDLE_IDENTIFIER = com.learnock.learnockDrm", "PRODUCT_BUNDLE_IDENTIFIER = com.elprofvirus.app")
-        content = content.replace("PRODUCT_COPYRIGHT = Copyright © 2026 com.learnock. All rights reserved.", "PRODUCT_COPYRIGHT = Copyright © 2026 com.elprofmath. All rights reserved.")
+        content = content.replace("PRODUCT_BUNDLE_IDENTIFIER = com.learnock.learnockDrm", "PRODUCT_BUNDLE_IDENTIFIER = com.elmasa.app")
+        content = content.replace("PRODUCT_COPYRIGHT = Copyright © 2026 com.learnock. All rights reserved.", "PRODUCT_COPYRIGHT = Copyright © 2026 com.elmasa. All rights reserved.")
         with open(app_info, "w", encoding="utf-8") as f:
             f.write(content)
 
@@ -123,7 +123,7 @@ def update_macos_configs():
     if os.path.exists(pbxproj):
         with open(pbxproj, "r", encoding="utf-8") as f:
             content = f.read()
-        content = content.replace("PRODUCT_BUNDLE_IDENTIFIER = com.learnock.learnockDrm.RunnerTests;", "PRODUCT_BUNDLE_IDENTIFIER = com.elprofvirus.app
+        content = content.replace("PRODUCT_BUNDLE_IDENTIFIER = com.learnock.learnockDrm.RunnerTests;", "PRODUCT_BUNDLE_IDENTIFIER = com.elmasa.app
 .RunnerTests;")
         content = content.replace("learnock_drm.app", "elmasa.app")
         content = content.replace("learnock_drm", "elmasa")
@@ -157,10 +157,10 @@ def update_windows_configs():
     if os.path.exists(runner_rc):
         with open(runner_rc, "r", encoding="utf-8") as f:
             content = f.read()
-        content = content.replace('"CompanyName", "com.learnock"', '"CompanyName", "com.elprofmath"')
+        content = content.replace('"CompanyName", "com.learnock"', '"CompanyName", "com.elmasa"')
         content = content.replace('"FileDescription", "learnock_drm"', '"FileDescription", "elmasa"')
         content = content.replace('"InternalName", "learnock_drm"', '"InternalName", "elmasa"')
-        content = content.replace('"LegalCopyright", "Copyright (C) 2026 com.learnock. All rights reserved."', '"LegalCopyright", "Copyright (C) 2026 com.elprofmath. All rights reserved."')
+        content = content.replace('"LegalCopyright", "Copyright (C) 2026 com.learnock. All rights reserved."', '"LegalCopyright", "Copyright (C) 2026 com.elmasa. All rights reserved."')
         content = content.replace('"OriginalFilename", "learnock_drm.exe"', '"OriginalFilename", "elmasa.exe"')
         content = content.replace('"ProductName", "learnock_drm"', '"ProductName", "elmasa"')
         with open(runner_rc, "w", encoding="utf-8") as f:
@@ -175,9 +175,9 @@ def update_linux_configs():
         with open(cmake, "r", encoding="utf-8") as f:
             content = f.read()
         content = content.replace('set(BINARY_NAME "learnock_drm")', 'set(BINARY_NAME "elmasa")')
-        content = content.replace('set(APPLICATION_ID "com.omran_college.app\n")', 'set(APPLICATION_ID "com.elprofvirus.app
+        content = content.replace('set(APPLICATION_ID "com.omran_college.app\n")', 'set(APPLICATION_ID "com.elmasa.app
 \n")')
-        content = content.replace('set(APPLICATION_ID "com.omran_college.app")', 'set(APPLICATION_ID "com.elprofvirus.app")')
+        content = content.replace('set(APPLICATION_ID "com.omran_college.app")', 'set(APPLICATION_ID "com.elmasa.app")')
         with open(cmake, "w", encoding="utf-8") as f:
             f.write(content)
 

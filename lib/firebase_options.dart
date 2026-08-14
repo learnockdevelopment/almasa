@@ -64,7 +64,7 @@ class DefaultFirebaseOptions {
     storageBucket: 'mediation-elprofessor.firebasestorage.app',
     androidClientId: '332049197085-bepvs67g0d6vbu2bsfgcqn5vq2bv5205.apps.googleusercontent.com',
     iosClientId: '332049197085-f2ttm3cgnm8gk4oa7gfhl98m5lod10o6.apps.googleusercontent.com',
-    iosBundleId: 'com.elprofvirus.app',
+    iosBundleId: 'com.elmasa.app',
   );
   static const FirebaseOptions macos = FirebaseOptions(
     apiKey: 'AIzaSyDXSSazO9F5KQtiJ0otELhQGew9SDofrFs',
@@ -74,7 +74,7 @@ class DefaultFirebaseOptions {
     storageBucket: 'mediation-elprofessor.firebasestorage.app',
     androidClientId: '332049197085-bepvs67g0d6vbu2bsfgcqn5vq2bv5205.apps.googleusercontent.com',
     iosClientId: '332049197085-f2ttm3cgnm8gk4oa7gfhl98m5lod10o6.apps.googleusercontent.com',
-    iosBundleId: 'com.elprofvirus.app',
+    iosBundleId: 'com.elmasa.app',
   );
 
   static const FirebaseOptions windows = FirebaseOptions(

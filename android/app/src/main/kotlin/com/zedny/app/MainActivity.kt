@@ -1,4 +1,4 @@
-package com.elprofvirus.app
+package com.elmasa.app
 
 
 import io.flutter.embedding.android.FlutterActivity
