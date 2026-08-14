@@ -41,48 +41,48 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyC56AH-salv93XsZLsDZ4P5Y6zAQBRLPRw',
-    appId: '1:332049197085:web:1b88088bd8f4413c6ffef4',
-    messagingSenderId: '332049197085',
-    projectId: 'mediation-elprofessor',
-    authDomain: 'mediation-elprofessor.firebaseapp.com',
-    storageBucket: 'mediation-elprofessor.firebasestorage.app',
+    apiKey: 'AIzaSyA30JCgNeQ98Y0jZQhQ4og3qjsXiRDWGiA',
+    appId: '1:186645707534:web:574be7332bddfbc71f755f',
+    messagingSenderId: '186645707534',
+    projectId: 'elmasa-502219',
+    authDomain: 'elmasa-502219.firebaseapp.com',
+    storageBucket: 'elmasa-502219.firebasestorage.app',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyDOiRrCo2PcREHoiWubYTiNDXfemLShntg',
-    appId: '1:332049197085:android:80f3a2cd574ffe906ffef4',
-    messagingSenderId: '332049197085',
-    projectId: 'mediation-elprofessor',
-    storageBucket: 'mediation-elprofessor.firebasestorage.app',
+    apiKey: 'AIzaSyCTWdtg1ms3i6jmBKDCRVp0dDjIpxHgoA0',
+    appId: '1:186645707534:android:bfa674dec3e6cc111f755f',
+    messagingSenderId: '186645707534',
+    projectId: 'elmasa-502219',
+    storageBucket: 'elmasa-502219.firebasestorage.app',
   );
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyDXSSazO9F5KQtiJ0otELhQGew9SDofrFs',
-    appId: '1:332049197085:ios:556f00e38e0f47f76ffef4',
-    messagingSenderId: '332049197085',
-    projectId: 'mediation-elprofessor',
-    storageBucket: 'mediation-elprofessor.firebasestorage.app',
-    androidClientId: '332049197085-bepvs67g0d6vbu2bsfgcqn5vq2bv5205.apps.googleusercontent.com',
-    iosClientId: '332049197085-f2ttm3cgnm8gk4oa7gfhl98m5lod10o6.apps.googleusercontent.com',
+    apiKey: 'AIzaSyCaIkZuKRdhvwXg3ufkca1H_LsSG1dFeyY',
+    appId: '1:186645707534:ios:cf36f5b46e0cbbab1f755f',
+    messagingSenderId: '186645707534',
+    projectId: 'elmasa-502219',
+    storageBucket: 'elmasa-502219.firebasestorage.app',
+    androidClientId: '186645707534-501hj7cjedfjfbntemfnb57qnv6ga1ea.apps.googleusercontent.com',
+    iosClientId: '186645707534-eqsldonr1m4mis7fv8u87vh47vbhie29.apps.googleusercontent.com',
     iosBundleId: 'com.elmasa.app',
   );
   static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'AIzaSyDXSSazO9F5KQtiJ0otELhQGew9SDofrFs',
-    appId: '1:332049197085:ios:556f00e38e0f47f76ffef4',
-    messagingSenderId: '332049197085',
-    projectId: 'mediation-elprofessor',
-    storageBucket: 'mediation-elprofessor.firebasestorage.app',
-    androidClientId: '332049197085-bepvs67g0d6vbu2bsfgcqn5vq2bv5205.apps.googleusercontent.com',
-    iosClientId: '332049197085-f2ttm3cgnm8gk4oa7gfhl98m5lod10o6.apps.googleusercontent.com',
+    apiKey: 'AIzaSyCaIkZuKRdhvwXg3ufkca1H_LsSG1dFeyY',
+    appId: '1:186645707534:ios:cf36f5b46e0cbbab1f755f',
+    messagingSenderId: '186645707534',
+    projectId: 'elmasa-502219',
+    storageBucket: 'elmasa-502219.firebasestorage.app',
+    androidClientId: '186645707534-501hj7cjedfjfbntemfnb57qnv6ga1ea.apps.googleusercontent.com',
+    iosClientId: '186645707534-eqsldonr1m4mis7fv8u87vh47vbhie29.apps.googleusercontent.com',
     iosBundleId: 'com.elmasa.app',
   );
 
   static const FirebaseOptions windows = FirebaseOptions(
-    apiKey: 'AIzaSyC56AH-salv93XsZLsDZ4P5Y6zAQBRLPRw',
-    appId: '1:332049197085:web:c8651496b007decf6ffef4',
-    messagingSenderId: '332049197085',
-    projectId: 'mediation-elprofessor',
-    authDomain: 'mediation-elprofessor.firebaseapp.com',
-    storageBucket: 'mediation-elprofessor.firebasestorage.app',
+    apiKey: 'AIzaSyA30JCgNeQ98Y0jZQhQ4og3qjsXiRDWGiA',
+    appId: '1:186645707534:web:3e5e8911e1a8a4f51f755f',
+    messagingSenderId: '186645707534',
+    projectId: 'elmasa-502219',
+    authDomain: 'elmasa-502219.firebaseapp.com',
+    storageBucket: 'elmasa-502219.firebasestorage.app',
   );
 }
