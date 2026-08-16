@@ -1269,7 +1269,13 @@ class ApiService {
   }
 
   Future<Map<String, dynamic>> joinGroup(int groupId) async {
-    return await request('POST', '/auth/batches', body: {'groupId': groupId});
+    return await request('POST', '/auth/batches', body: {
+      'groupId': groupId,
+      'group_id': groupId,
+      'batchId': groupId,
+      'batch_id': groupId,
+      'id': groupId,
+    });
   }
 
   // REVISED FLOW: /api/schedule

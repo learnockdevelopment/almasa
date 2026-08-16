@@ -742,7 +742,11 @@ class WorkspaceProvider with ChangeNotifier {
   Future<Map<String, dynamic>> joinGroup(int groupId) async {
     final res = await _apiService.joinGroup(groupId);
     invalidateCache();
-    await eagerLoad();
+    try {
+      await eagerLoad();
+    } catch (e) {
+      debugPrint('⚠️ eagerLoad after joinGroup error: $e');
+    }
     return res;
   }
   

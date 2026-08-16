@@ -57,25 +57,41 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (c) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: const Text("JOIN GROUP", style: TextStyle(fontSize: 14, fontWeight: FontWeight.w900)),
         content: Text("Join group ${g['name']}?"),
         actions: [
           TextButton(onPressed: () => Navigator.pop(c, false), child: const Text("CANCEL")),
-          TextButton(onPressed: () => Navigator.pop(c, true), child: const Text("YES, JOIN")),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(c, true),
+            child: const Text("YES, JOIN", style: TextStyle(fontWeight: FontWeight.bold)),
+          ),
         ],
       ),
     );
 
     if (confirm != true) return;
 
+    final rawId = g['id'] ?? g['groupId'] ?? g['batchId'] ?? g['group_id'] ?? g['batch_id'];
+    final groupId = int.tryParse(rawId?.toString() ?? '0') ?? 0;
+    if (groupId == 0) return;
+
     setState(() => _isGroupsLoading = true);
     try {
       final wp = Provider.of<WorkspaceProvider>(context, listen: false);
-      await wp.joinGroup(g['id']);
+      await wp.joinGroup(groupId);
       await _fetchGroups(); // Refresh
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Joined successfully!"), backgroundColor: Colors.green));
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Joined successfully!"), backgroundColor: Colors.green, behavior: SnackBarBehavior.floating),
+        );
+      }
     } catch (e) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString()), backgroundColor: Colors.red));
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(e.toString().replaceAll('Exception: ', '')), backgroundColor: Colors.red, behavior: SnackBarBehavior.floating),
+        );
+      }
     } finally {
       if (mounted) setState(() => _isGroupsLoading = false);
     }

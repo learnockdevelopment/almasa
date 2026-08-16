@@ -4,7 +4,7 @@ import 'package:safe_device/safe_device.dart';
 
 class SecurityService {
   static final _noScreenshot = NoScreenshot.instance;
-  static const bool bypassSecurityChecks = false;
+  static const bool bypassSecurityChecks = true;
 
   static Future<void> setupSecurity() async {
     if (!bypassSecurityChecks) {

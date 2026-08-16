@@ -64,7 +64,7 @@ class DefaultFirebaseOptions {
     storageBucket: 'elmasa-502219.firebasestorage.app',
     androidClientId: '186645707534-501hj7cjedfjfbntemfnb57qnv6ga1ea.apps.googleusercontent.com',
     iosClientId: '186645707534-eqsldonr1m4mis7fv8u87vh47vbhie29.apps.googleusercontent.com',
-    iosBundleId: 'com.elmasa.app',
+    iosBundleId: 'com.almasa.app',
   );
   static const FirebaseOptions macos = FirebaseOptions(
     apiKey: 'AIzaSyCaIkZuKRdhvwXg3ufkca1H_LsSG1dFeyY',
@@ -74,7 +74,7 @@ class DefaultFirebaseOptions {
     storageBucket: 'elmasa-502219.firebasestorage.app',
     androidClientId: '186645707534-501hj7cjedfjfbntemfnb57qnv6ga1ea.apps.googleusercontent.com',
     iosClientId: '186645707534-eqsldonr1m4mis7fv8u87vh47vbhie29.apps.googleusercontent.com',
-    iosBundleId: 'com.elmasa.app',
+    iosBundleId: 'com.almasa.app',
   );
 
   static const FirebaseOptions windows = FirebaseOptions(

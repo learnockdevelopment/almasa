@@ -591,63 +591,149 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
     );
   }
 
-
-
   Future<void> _showMandatoryGroupModal(List groups) async {
      final lang = Provider.of<LanguageProvider>(context, listen: false);
+     final primary = Theme.of(context).primaryColor;
+     int? joiningGroupId;
+
      await showDialog(
        context: context,
        barrierDismissible: false,
-       builder: (context) => WillPopScope(
-         onWillPop: () async => false,
-         child: AlertDialog(
-           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
-           title: Text(lang.translate('select_batch') ?? "SELECT YOUR BATCH", style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 18)),
-           content: SizedBox(
-             width: double.maxFinite,
-             child: Column(
-               mainAxisSize: MainAxisSize.min,
-               children: [
-                 Text(lang.translate('must_join_group') ?? "You must be added to a group before you can continue.", style: const TextStyle(fontSize: 13, height: 1.4, color: Colors.white60)),
-                 const SizedBox(height: 20),
-                 Flexible(
-                   child: ListView.builder(
-                     shrinkWrap: true,
-                     itemCount: groups.length,
-                     itemBuilder: (c, i) {
-                        final g = groups[i];
-                        return Container(
-                          margin: const EdgeInsets.only(bottom: 10),
-                          decoration: BoxDecoration(color: Colors.white.withOpacity(0.05), borderRadius: BorderRadius.circular(15)),
-                          child: ListTile(
-                            title: Text(g['name'] ?? '', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-                            subtitle: Text("${g['day_name'] ?? ''} @ ${g['session_time'] ?? ''}", style: const TextStyle(fontSize: 11)),
-                            trailing: const Icon(Icons.add_circle_outline_rounded, color: Colors.white30),
-                            onTap: () async {
-                               final confirm = await showDialog<bool>(
-                                 context: context,
-                                 builder: (c) => AlertDialog(
-                                   title: Text(lang.translate('confirm_selection') ?? "CONFIRM SELECTION", style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w900)),
-                                   content: Text("${lang.translate('join_group_confirm') ?? 'Join group'} ${g['name']}?"),
-                                   actions: [
-                                      TextButton(onPressed: () => Navigator.pop(c, false), child: Text(lang.translate('cancel') ?? "CANCEL")),
-                                      TextButton(onPressed: () => Navigator.pop(c, true), child: Text(lang.translate('yes_join') ?? "YES, JOIN")),
-                                   ],
-                                 ),
-                               );
-                               if (confirm == true) {
-                                  final wp = Provider.of<WorkspaceProvider>(context, listen: false);
-                                  await wp.joinGroup(g['id']);
-                                  if (context.mounted) Navigator.pop(context);
-                                  _fetch(); // Refresh
-                               }
-                            },
-                          ),
-                        );
-                     },
+       builder: (dialogContext) => StatefulBuilder(
+         builder: (modalContext, setModalState) => WillPopScope(
+           onWillPop: () async => false,
+           child: AlertDialog(
+             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+             title: Text(
+               lang.translate('select_batch') ?? "SELECT YOUR BATCH",
+               style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 18),
+             ),
+             content: SizedBox(
+               width: double.maxFinite,
+               child: Column(
+                 mainAxisSize: MainAxisSize.min,
+                 children: [
+                   Text(
+                     lang.translate('must_join_group') ?? "You must be added to a group before you can continue.",
+                     style: const TextStyle(fontSize: 13, height: 1.4, color: Colors.white60),
                    ),
-                 ),
-               ],
+                   const SizedBox(height: 20),
+                   Flexible(
+                     child: ListView.builder(
+                       shrinkWrap: true,
+                       itemCount: groups.length,
+                       itemBuilder: (c, i) {
+                          final g = groups[i];
+                          final rawId = g['id'] ?? g['groupId'] ?? g['batchId'] ?? g['group_id'] ?? g['batch_id'];
+                          final groupId = int.tryParse(rawId?.toString() ?? '0') ?? 0;
+                          final isThisJoining = joiningGroupId == groupId && groupId > 0;
+                          final isAnyJoining = joiningGroupId != null;
+
+                          return Container(
+                            margin: const EdgeInsets.only(bottom: 10),
+                            decoration: BoxDecoration(
+                              color: isThisJoining
+                                  ? primary.withOpacity(0.12)
+                                  : Colors.white.withOpacity(0.05),
+                              borderRadius: BorderRadius.circular(15),
+                              border: Border.all(
+                                color: isThisJoining ? primary : Colors.transparent,
+                                width: 1.5,
+                              ),
+                            ),
+                            child: ListTile(
+                              enabled: !isAnyJoining,
+                              title: Text(g['name'] ?? '', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                              subtitle: (g['day_name'] != null || g['session_time'] != null)
+                                  ? Text("${g['day_name'] ?? ''} @ ${g['session_time'] ?? ''}".trim(), style: const TextStyle(fontSize: 11))
+                                  : null,
+                              trailing: isThisJoining
+                                  ? SizedBox(
+                                      width: 22,
+                                      height: 22,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2.5,
+                                        valueColor: AlwaysStoppedAnimation<Color>(primary),
+                                      ),
+                                    )
+                                  : Icon(
+                                      Icons.add_circle_outline_rounded,
+                                      color: isAnyJoining ? Colors.white24 : Colors.white30,
+                                    ),
+                              onTap: isAnyJoining ? null : () async {
+                                 if (groupId == 0) return;
+                                 final confirm = await showDialog<bool>(
+                                   context: dialogContext,
+                                   builder: (confirmCtx) => AlertDialog(
+                                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                                     title: Text(lang.translate('confirm_selection') ?? "CONFIRM SELECTION", style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w900)),
+                                     content: Text("${lang.translate('join_group_confirm') ?? 'Join group'} ${g['name']}?"),
+                                     actions: [
+                                        TextButton(
+                                          onPressed: () => Navigator.pop(confirmCtx, false),
+                                          child: Text(lang.translate('cancel') ?? "CANCEL"),
+                                        ),
+                                        ElevatedButton(
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor: primary,
+                                            foregroundColor: Colors.white,
+                                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                          ),
+                                          onPressed: () => Navigator.pop(confirmCtx, true),
+                                          child: Text(lang.translate('yes_join') ?? "YES, JOIN", style: const TextStyle(fontWeight: FontWeight.bold)),
+                                        ),
+                                     ],
+                                   ),
+                                 );
+
+                                 if (confirm == true) {
+                                    setModalState(() {
+                                      joiningGroupId = groupId;
+                                    });
+
+                                    try {
+                                      final wp = Provider.of<WorkspaceProvider>(this.context, listen: false);
+                                      await wp.joinGroup(groupId);
+                                      if (dialogContext.mounted) {
+                                        Navigator.of(dialogContext, rootNavigator: true).pop();
+                                      }
+                                      if (mounted) {
+                                        ScaffoldMessenger.of(this.context).showSnackBar(
+                                          SnackBar(
+                                            content: Text(lang.translate('joined') ?? "Joined successfully!"),
+                                            backgroundColor: Colors.green,
+                                            behavior: SnackBarBehavior.floating,
+                                          ),
+                                        );
+                                        _fetch(); // Refresh
+                                      }
+                                    } catch (e) {
+                                      debugPrint("❌ Join group error: $e");
+                                      if (mounted) {
+                                        ScaffoldMessenger.of(this.context).showSnackBar(
+                                          SnackBar(
+                                            content: Text(e.toString().replaceAll('Exception: ', '')),
+                                            backgroundColor: Colors.red,
+                                            behavior: SnackBarBehavior.floating,
+                                          ),
+                                        );
+                                      }
+                                    } finally {
+                                      if (dialogContext.mounted) {
+                                        setModalState(() {
+                                          joiningGroupId = null;
+                                        });
+                                      }
+                                    }
+                                 }
+                              },
+                            ),
+                          );
+                       },
+                     ),
+                   ),
+                 ],
+               ),
              ),
            ),
          ),

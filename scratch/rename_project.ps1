@@ -16,8 +16,8 @@ Write-Host "Updating Android configurations..."
 $appGradle = "$baseDir\android\app\build.gradle"
 if (Test-Path $appGradle) {
     $content = [System.IO.File]::ReadAllText($appGradle)
-    $content = $content.Replace('namespace = "com.omran_college.app"', 'namespace = "com.elmasa.app"')
-    $content = $content.Replace('applicationId = "com.omran_college.app"', 'applicationId = "com.elmasa.app"')
+    $content = $content.Replace('namespace = "com.omran_college.app"', 'namespace = "com.almasa.app"')
+    $content = $content.Replace('applicationId = "com.omran_college.app"', 'applicationId = "com.almasa.app"')
     [System.IO.File]::WriteAllText($appGradle, $content)
 }
 
@@ -44,7 +44,7 @@ if (!(Test-Path $newKotlinDir)) {
 }
 
 $newActivityPath = "$newKotlinDir\MainActivity.kt"
-$activityContent = "package com.elmasa.app
+$activityContent = "package com.almasa.app
 `n`nimport io.flutter.embedding.android.FlutterActivity`n`nclass MainActivity: FlutterActivity()`n"
 [System.IO.File]::WriteAllText($newActivityPath, $activityContent)
 
@@ -67,7 +67,7 @@ if (Test-Path $infoPlist) {
 $pbxprojIos = "$baseDir\ios\Runner.xcodeproj\project.pbxproj"
 if (Test-Path $pbxprojIos) {
     $content = [System.IO.File]::ReadAllText($pbxprojIos)
-    $content = $content.Replace("PRODUCT_BUNDLE_IDENTIFIER = com.learnock.learnockDrm;", "PRODUCT_BUNDLE_IDENTIFIER = com.elmasa.app
+    $content = $content.Replace("PRODUCT_BUNDLE_IDENTIFIER = com.learnock.learnockDrm;", "PRODUCT_BUNDLE_IDENTIFIER = com.almasa.app
 ;")
     $content = $content.Replace("INFOPLIST_KEY_CFBundleDisplayName = `"AL Masa`";", "INFOPLIST_KEY_CFBundleDisplayName = `"AL Masa`";")
     [System.IO.File]::WriteAllText($pbxprojIos, $content)
@@ -79,7 +79,7 @@ $appInfo = "$baseDir\macos\Runner\Configs\AppInfo.xcconfig"
 if (Test-Path $appInfo) {
     $content = [System.IO.File]::ReadAllText($appInfo)
     $content = $content.Replace("PRODUCT_NAME = learnock_drm", "PRODUCT_NAME = elmasa")
-    $content = $content.Replace("PRODUCT_BUNDLE_IDENTIFIER = com.learnock.learnockDrm", "PRODUCT_BUNDLE_IDENTIFIER = com.elmasa.app")
+    $content = $content.Replace("PRODUCT_BUNDLE_IDENTIFIER = com.learnock.learnockDrm", "PRODUCT_BUNDLE_IDENTIFIER = com.almasa.app")
     $content = $content.Replace("PRODUCT_COPYRIGHT = Copyright © 2026 com.learnock. All rights reserved.", "PRODUCT_COPYRIGHT = Copyright © 2026 com.elmasa. All rights reserved.")
     [System.IO.File]::WriteAllText($appInfo, $content)
 }
@@ -87,7 +87,7 @@ if (Test-Path $appInfo) {
 $pbxprojMacos = "$baseDir\macos\Runner.xcodeproj\project.pbxproj"
 if (Test-Path $pbxprojMacos) {
     $content = [System.IO.File]::ReadAllText($pbxprojMacos)
-    $content = $content.Replace("PRODUCT_BUNDLE_IDENTIFIER = com.learnock.learnockDrm.RunnerTests;", "PRODUCT_BUNDLE_IDENTIFIER = com.elmasa.app
+    $content = $content.Replace("PRODUCT_BUNDLE_IDENTIFIER = com.learnock.learnockDrm.RunnerTests;", "PRODUCT_BUNDLE_IDENTIFIER = com.almasa.app
 .RunnerTests;")
     $content = $content.Replace("learnock_drm.app", "elmasa.app")
     $content = $content.Replace("learnock_drm", "elmasa")
@@ -129,9 +129,9 @@ $cmakeLinux = "$baseDir\linux\CMakeLists.txt"
 if (Test-Path $cmakeLinux) {
     $content = [System.IO.File]::ReadAllText($cmakeLinux)
     $content = $content.Replace('set(BINARY_NAME "learnock_drm")', 'set(BINARY_NAME "elmasa")')
-    $content = $content.Replace('set(APPLICATION_ID "com.omran_college.app`n")', 'set(APPLICATION_ID "com.elmasa.app
+    $content = $content.Replace('set(APPLICATION_ID "com.omran_college.app`n")', 'set(APPLICATION_ID "com.almasa.app
 `n")')
-    $content = $content.Replace('set(APPLICATION_ID "com.omran_college.app")', 'set(APPLICATION_ID "com.elmasa.app")')
+    $content = $content.Replace('set(APPLICATION_ID "com.omran_college.app")', 'set(APPLICATION_ID "com.almasa.app")')
     [System.IO.File]::WriteAllText($cmakeLinux, $content)
 }
 
