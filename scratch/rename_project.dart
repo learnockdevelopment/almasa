@@ -38,8 +38,8 @@ void main() {
   final appGradle = File('${baseDir.path}/android/app/build.gradle');
   if (appGradle.existsSync()) {
     var content = appGradle.readAsStringSync();
-    content = content.replaceAll('namespace = "com.omran_college.app"', 'namespace = "com.almasa.app"');
-    content = content.replaceAll('applicationId = "com.omran_college.app"', 'applicationId = "com.almasa.app"');
+    content = content.replaceAll('namespace = "com.omran_college.app"', 'namespace = "com.elmasa.app"');
+    content = content.replaceAll('applicationId = "com.omran_college.app"', 'applicationId = "com.elmasa.app"');
     appGradle.writeAsStringSync(content);
   }
 
@@ -63,7 +63,7 @@ void main() {
   newKotlinDir.createSync(recursive: true);
   
   final newActivity = File('${newKotlinDir.path}/MainActivity.kt');
-  newActivity.writeAsStringSync('package com.almasa.app
+  newActivity.writeAsStringSync('package com.elmasa.app
 \n\nimport io.flutter.embedding.android.FlutterActivity\n\nclass MainActivity: FlutterActivity()\n');
 
   final oldActivity = File('${oldKotlinDir.path}/MainActivity.kt');
@@ -84,7 +84,7 @@ void main() {
   final pbxprojIos = File('${baseDir.path}/ios/Runner.xcodeproj/project.pbxproj');
   if (pbxprojIos.existsSync()) {
     var content = pbxprojIos.readAsStringSync();
-    content = content.replaceAll('PRODUCT_BUNDLE_IDENTIFIER = com.learnock.learnockDrm;', 'PRODUCT_BUNDLE_IDENTIFIER = com.almasa.app
+    content = content.replaceAll('PRODUCT_BUNDLE_IDENTIFIER = com.learnock.learnockDrm;', 'PRODUCT_BUNDLE_IDENTIFIER = com.elmasa.app
 ;');
     content = content.replaceAll('INFOPLIST_KEY_CFBundleDisplayName = "Learnock DRM";', 'INFOPLIST_KEY_CFBundleDisplayName = "AL Masa";');
     pbxprojIos.writeAsStringSync(content);
@@ -96,7 +96,7 @@ void main() {
   if (appInfo.existsSync()) {
     var content = appInfo.readAsStringSync();
     content = content.replaceAll('PRODUCT_NAME = learnock_drm', 'PRODUCT_NAME = elmasa');
-    content = content.replaceAll('PRODUCT_BUNDLE_IDENTIFIER = com.learnock.learnockDrm', 'PRODUCT_BUNDLE_IDENTIFIER = com.almasa.app
+    content = content.replaceAll('PRODUCT_BUNDLE_IDENTIFIER = com.learnock.learnockDrm', 'PRODUCT_BUNDLE_IDENTIFIER = com.elmasa.app
 ');
     content = content.replaceAll('PRODUCT_COPYRIGHT = Copyright © 2026 com.learnock. All rights reserved.', 'PRODUCT_COPYRIGHT = Copyright © 2026 com.elmasa. All rights reserved.');
     appInfo.writeAsStringSync(content);
@@ -105,7 +105,7 @@ void main() {
   final pbxprojMacos = File('${baseDir.path}/macos/Runner.xcodeproj/project.pbxproj');
   if (pbxprojMacos.existsSync()) {
     var content = pbxprojMacos.readAsStringSync();
-    content = content.replaceAll('PRODUCT_BUNDLE_IDENTIFIER = com.learnock.learnockDrm.RunnerTests;', 'PRODUCT_BUNDLE_IDENTIFIER = com.almasa.app
+    content = content.replaceAll('PRODUCT_BUNDLE_IDENTIFIER = com.learnock.learnockDrm.RunnerTests;', 'PRODUCT_BUNDLE_IDENTIFIER = com.elmasa.app
 .RunnerTests;');
     content = content.replaceAll('learnock_drm.app', 'elmasa.app');
     content = content.replaceAll('learnock_drm', 'elmasa');
@@ -147,9 +147,9 @@ void main() {
   if (cmakeLinux.existsSync()) {
     var content = cmakeLinux.readAsStringSync();
     content = content.replaceAll('set(BINARY_NAME "learnock_drm")', 'set(BINARY_NAME "elmasa")');
-    content = content.replaceAll('set(APPLICATION_ID "com.omran_college.app\\n")', 'set(APPLICATION_ID "com.almasa.app
+    content = content.replaceAll('set(APPLICATION_ID "com.omran_college.app\\n")', 'set(APPLICATION_ID "com.elmasa.app
 \\n")');
-    content = content.replaceAll('set(APPLICATION_ID "com.omran_college.app")', 'set(APPLICATION_ID "com.almasa.app")');
+    content = content.replaceAll('set(APPLICATION_ID "com.omran_college.app")', 'set(APPLICATION_ID "com.elmasa.app")');
     cmakeLinux.writeAsStringSync(content);
   }
 

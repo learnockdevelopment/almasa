@@ -41,8 +41,8 @@ def update_android_configs():
     if os.path.exists(app_gradle):
         with open(app_gradle, "r", encoding="utf-8") as f:
             content = f.read()
-        content = content.replace('namespace = "com.omran_college.app"', 'namespace = "com.almasa.app"')
-        content = content.replace('applicationId = "com.omran_college.app"', 'applicationId = "com.almasa.app"')
+        content = content.replace('namespace = "com.omran_college.app"', 'namespace = "com.elmasa.app"')
+        content = content.replace('applicationId = "com.omran_college.app"', 'applicationId = "com.elmasa.app"')
         with open(app_gradle, "w", encoding="utf-8") as f:
             f.write(content)
 
@@ -72,7 +72,7 @@ def update_android_configs():
     new_activity_path = os.path.join(new_kotlin_dir, "MainActivity.kt")
     
     with open(new_activity_path, "w", encoding="utf-8") as f:
-        f.write("package com.almasa.app
+        f.write("package com.elmasa.app
 \n\nimport io.flutter.embedding.android.FlutterActivity\n\nclass MainActivity: FlutterActivity()\n")
     
     # Remove old MainActivity.kt if it exists
@@ -98,7 +98,7 @@ def update_ios_configs():
     if os.path.exists(pbxproj):
         with open(pbxproj, "r", encoding="utf-8") as f:
             content = f.read()
-        content = content.replace("PRODUCT_BUNDLE_IDENTIFIER = com.learnock.learnockDrm;", "PRODUCT_BUNDLE_IDENTIFIER = com.almasa.app
+        content = content.replace("PRODUCT_BUNDLE_IDENTIFIER = com.learnock.learnockDrm;", "PRODUCT_BUNDLE_IDENTIFIER = com.elmasa.app
 ;")
         content = content.replace("INFOPLIST_KEY_CFBundleDisplayName = \"AL Masa\";", "INFOPLIST_KEY_CFBundleDisplayName = \"AL Masa\";")
         with open(pbxproj, "w", encoding="utf-8") as f:
@@ -113,7 +113,7 @@ def update_macos_configs():
         with open(app_info, "r", encoding="utf-8") as f:
             content = f.read()
         content = content.replace("PRODUCT_NAME = learnock_drm", "PRODUCT_NAME = elmasa")
-        content = content.replace("PRODUCT_BUNDLE_IDENTIFIER = com.learnock.learnockDrm", "PRODUCT_BUNDLE_IDENTIFIER = com.almasa.app")
+        content = content.replace("PRODUCT_BUNDLE_IDENTIFIER = com.learnock.learnockDrm", "PRODUCT_BUNDLE_IDENTIFIER = com.elmasa.app")
         content = content.replace("PRODUCT_COPYRIGHT = Copyright © 2026 com.learnock. All rights reserved.", "PRODUCT_COPYRIGHT = Copyright © 2026 com.elmasa. All rights reserved.")
         with open(app_info, "w", encoding="utf-8") as f:
             f.write(content)
@@ -123,7 +123,7 @@ def update_macos_configs():
     if os.path.exists(pbxproj):
         with open(pbxproj, "r", encoding="utf-8") as f:
             content = f.read()
-        content = content.replace("PRODUCT_BUNDLE_IDENTIFIER = com.learnock.learnockDrm.RunnerTests;", "PRODUCT_BUNDLE_IDENTIFIER = com.almasa.app
+        content = content.replace("PRODUCT_BUNDLE_IDENTIFIER = com.learnock.learnockDrm.RunnerTests;", "PRODUCT_BUNDLE_IDENTIFIER = com.elmasa.app
 .RunnerTests;")
         content = content.replace("learnock_drm.app", "elmasa.app")
         content = content.replace("learnock_drm", "elmasa")
@@ -175,9 +175,9 @@ def update_linux_configs():
         with open(cmake, "r", encoding="utf-8") as f:
             content = f.read()
         content = content.replace('set(BINARY_NAME "learnock_drm")', 'set(BINARY_NAME "elmasa")')
-        content = content.replace('set(APPLICATION_ID "com.omran_college.app\n")', 'set(APPLICATION_ID "com.almasa.app
+        content = content.replace('set(APPLICATION_ID "com.omran_college.app\n")', 'set(APPLICATION_ID "com.elmasa.app
 \n")')
-        content = content.replace('set(APPLICATION_ID "com.omran_college.app")', 'set(APPLICATION_ID "com.almasa.app")')
+        content = content.replace('set(APPLICATION_ID "com.omran_college.app")', 'set(APPLICATION_ID "com.elmasa.app")')
         with open(cmake, "w", encoding="utf-8") as f:
             f.write(content)
 

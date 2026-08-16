@@ -30,7 +30,7 @@ if (keystorePropertiesFile.exists()) {
 }
 
 android {
-    namespace = "com.almasa.app"
+    namespace = "com.elmasa.app"
     compileSdk = 36
     buildToolsVersion = "36.0.0"
     ndkVersion = "28.2.13676358"
@@ -57,7 +57,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.almasa.app"
+        applicationId = "com.elmasa.app"
         minSdk = 26
         targetSdk = 36
         versionCode = 91
