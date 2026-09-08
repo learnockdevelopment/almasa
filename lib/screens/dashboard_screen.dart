@@ -1744,6 +1744,25 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
                   _buildSidebarAction(icon: Icons.grid_view_rounded, title: lang.translate('dashboard'), onTap: () => Navigator.pop(context), isSelected: true, wsColor: wsColor),
                   _buildSidebarAction(icon: Icons.library_books_rounded, title: lang.translate('all_courses') ?? 'All Courses', onTap: () { Navigator.pop(context); _navigateToTab(1); }, wsColor: wsColor),
                   _buildSidebarAction(icon: Icons.favorite_rounded, title: lang.translate('favorites') ?? 'Favorites', onTap: () { Navigator.pop(context); if (wp.isGuest) Navigator.pushNamedAndRemoveUntil(context, '/onboarding', (r) => false); else Navigator.pushNamed(context, '/favorites'); }, wsColor: wsColor),
+                  _buildSidebarAction(
+                    icon: Icons.border_color_rounded,
+                    title: isRTL ? 'السبورة التفاعلية' : 'Interactive Whiteboard',
+                    onTap: () {
+                      Navigator.pop(context);
+                      if (wp.isGuest) Navigator.pushNamedAndRemoveUntil(context, '/onboarding', (r) => false);
+                      else Navigator.pushNamed(context, '/whiteboard');
+                    },
+                    wsColor: wsColor,
+                  ),
+                  _buildSidebarAction(
+                    icon: Icons.quiz_rounded,
+                    title: isRTL ? 'الأسئلة الشائعة' : 'FAQs',
+                    onTap: () {
+                      Navigator.pop(context);
+                      Navigator.pushNamed(context, '/faqs');
+                    },
+                    wsColor: wsColor,
+                  ),
                   const SizedBox(height: 16),
                   Padding(
                     padding: const EdgeInsets.only(left: 12, bottom: 8, top: 8),
@@ -1753,6 +1772,7 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
                   if (workspace?.enablePurchasing ?? true)
                     _buildSidebarAction(icon: Icons.account_balance_wallet_rounded, title: lang.translate('wallet_balance') ?? 'Academy Wallet', onTap: () { Navigator.pop(context); if (wp.isGuest) Navigator.pushNamedAndRemoveUntil(context, '/onboarding', (r) => false); else _navigateToTab(2); }, wsColor: wsColor),
                   const SizedBox(height: 24),
+
                 ],
               ),
             ),

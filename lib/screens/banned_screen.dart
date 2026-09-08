@@ -109,10 +109,28 @@ class BannedScreen extends StatelessWidget {
                     style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 14),
                   ),
                 ),
-              )],
+              ),
+              const SizedBox(height: 16),
+              TextButton.icon(
+                onPressed: () {
+                  final phone = whatsappNumber.isNotEmpty
+                      ? whatsappNumber
+                      : (wp.cachedDashboard?['site_whatsapp']?.toString() ?? '');
+                  if (phone.isNotEmpty) {
+                    wp.launchUrl('https://wa.me/${phone.replaceAll('+', '')}');
+                  }
+                },
+                icon: const Icon(Icons.support_agent_rounded, color: Colors.white60),
+                label: Text(
+                  isRTL ? 'تواصل مع الدعم الفني' : 'Contact Support',
+                  style: GoogleFonts.cairo(color: Colors.white60, fontSize: 13, fontWeight: FontWeight.bold),
+                ),
+              ),
+            ],
           ),
         ),
       ),
     );
   }
 }
+

@@ -18,6 +18,7 @@ class _WalletScreenState extends State<WalletScreen> {
   bool _isProcessing = false;
   Map<String, dynamic>? _dashboardData;
   String _walletBalanceStr = "0.00";
+  Map<String, dynamic>? _monthlyBill;
   bool _hasCheckedPrompt = false;
 
   @override
@@ -63,9 +64,13 @@ class _WalletScreenState extends State<WalletScreen> {
     if (mounted) {
       setState(() {
         _walletBalanceStr = (balRes['balance'] ?? balRes['wallet_balance'] ?? "0").toString();
+        if (balRes['monthly_bill'] is Map) {
+          _monthlyBill = Map<String, dynamic>.from(balRes['monthly_bill']);
+        }
       });
     }
   }
+
 
   void _showInsuffBalanceDialog() {
     final lang = Provider.of<LanguageProvider>(context, listen: false);
@@ -276,6 +281,7 @@ class _WalletScreenState extends State<WalletScreen> {
   @override
   Widget build(BuildContext context) {
     final lang = Provider.of<LanguageProvider>(context);
+    final wp = Provider.of<WorkspaceProvider>(context);
     final primaryColor = Theme.of(context).primaryColor;
     final onSurface = Theme.of(context).colorScheme.onSurface;
     final isRTL = lang.currentLocale.languageCode == 'ar';
@@ -350,8 +356,104 @@ class _WalletScreenState extends State<WalletScreen> {
                       ),
                     ),
                     
-                    const SizedBox(height: 32),
+                    const SizedBox(height: 24),
                     
+                    if (_monthlyBill != null) ...[
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          color: (_monthlyBill!['is_paid'] == true || _monthlyBill!['is_paid'] == 1)
+                              ? Colors.green.withOpacity(0.1)
+                              : Colors.amber.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(24),
+                          border: Border.all(
+                            color: (_monthlyBill!['is_paid'] == true || _monthlyBill!['is_paid'] == 1)
+                                ? Colors.green.withOpacity(0.3)
+                                : Colors.amber.withOpacity(0.3),
+                          ),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Row(
+                                  children: [
+                                    Icon(
+                                      Icons.calendar_month_rounded,
+                                      color: (_monthlyBill!['is_paid'] == true || _monthlyBill!['is_paid'] == 1)
+                                          ? Colors.green
+                                          : Colors.amber,
+                                      size: 20,
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      isRTL ? 'الفاتورة الشهرية للدروس المباشرة' : 'Monthly Live Classes Bill',
+                                      style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 14),
+                                    ),
+                                  ],
+                                ),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                  decoration: BoxDecoration(
+                                    color: (_monthlyBill!['is_paid'] == true || _monthlyBill!['is_paid'] == 1)
+                                        ? Colors.green
+                                        : Colors.amber,
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  child: Text(
+                                    (_monthlyBill!['is_paid'] == true || _monthlyBill!['is_paid'] == 1)
+                                        ? (isRTL ? 'مدفوعة' : 'Paid')
+                                        : (isRTL ? 'مستحقة' : 'Due'),
+                                    style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 12),
+                            Text(
+                              '${isRTL ? "المبلغ المطلوب:" : "Amount due:"} ${_monthlyBill!['total_due'] ?? _monthlyBill!['amount'] ?? 0} ${lang.translate('currency_le') ?? "LE"}',
+                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                            ),
+                            if (_monthlyBill!['is_paid'] != true && _monthlyBill!['is_paid'] != 1) ...[
+                              const SizedBox(height: 14),
+                              SizedBox(
+                                width: double.infinity,
+                                child: ElevatedButton(
+                                  onPressed: () async {
+                                    setState(() => _isProcessing = true);
+                                    try {
+                                      final res = await wp.settleMonthlyBill();
+                                      _showResultPrompt(success: true, message: res['message'] ?? (isRTL ? 'تم سداد الفاتورة الشهرية بنجاح' : 'Monthly bill settled successfully'));
+                                      _fetch(force: true);
+                                    } catch (e) {
+                                      _showResultPrompt(success: false, message: e.toString());
+                                    } finally {
+                                      if (mounted) setState(() => _isProcessing = false);
+                                    }
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.amber.shade700,
+                                    foregroundColor: Colors.white,
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                                    padding: const EdgeInsets.symmetric(vertical: 12),
+                                    elevation: 0,
+                                  ),
+                                  child: Text(
+                                    isRTL ? 'سداد الفاتورة من رصيد المحفظة' : 'Settle Bill from Wallet',
+                                    style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 12),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                    ],
+
                     // TRANSACTIONS BUTTON
                     _buildActionCard(
                       title: lang.translate('transactions') ?? 'Transactions History',

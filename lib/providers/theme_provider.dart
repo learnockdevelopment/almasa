@@ -125,6 +125,8 @@ class ThemeProvider extends ChangeNotifier {
       case 'ocean':
       case 'blue':
         return fromHSL(215, 85, 50);
+      case 'indigo':
+        return fromHSL(238, 80, 60);
       case 'purple':
       case 'violet':
         return fromHSL(265, 80, 55);
@@ -133,18 +135,26 @@ class ThemeProvider extends ChangeNotifier {
         return fromHSL(25, 90, 50);
       case 'crimson':
       case 'red':
-      case 'rose':
+      case 'ruby':
         return fromHSL(350, 80, 50);
+      case 'rose':
+        return fromHSL(340, 82, 52);
       case 'amber':
       case 'gold':
         return fromHSL(40, 90, 45);
       case 'cyan':
+      case 'sky':
+        return fromHSL(199, 89, 48);
       case 'teal':
         return fromHSL(180, 75, 40);
+      case 'midnight':
+      case 'slate':
+        return fromHSL(222, 47, 30);
       default:
         return null;
     }
   }
+
 
   ThemeData _generateThemeData(bool isDark, String? themeName, String? themeColorHex) {
     Color primary;

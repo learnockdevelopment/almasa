@@ -389,18 +389,18 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         if (e is DeviceMismatchException || errorStr.contains('mismatch') || errorStr.contains('linked to another device') || errorStr.contains('disconnect the old device')) {
           showDialog(
             context: context,
-            barrierDismissible: false,
             builder: (context) => _buildErrorPrompt(
               context,
-              title: isRTL ? 'تنبيه الأمان' : 'Security Alert',
-              message: isRTL 
-                  ? 'هذا الحساب مرتبط بجهاز آخر بالفعل. يرجى إلغاء ربط الجهاز القديم أولاً.'
-                  : 'This account is already linked to another device. Please disconnect the old device first.',
+              title: isRTL ? 'جهاز غير مصرح' : 'Unauthorized Device',
+              message: isRTL
+                  ? 'هذا الحساب مرتبط بجهاز آخر بالفعل. لا يمكنك تسجيل الدخول من هذا الجهاز وفقاً لسياسة حماية الحساب.'
+                  : 'This account is already linked to another device. Login from this device is not allowed.',
               icon: Icons.phonelink_lock_rounded,
-              isExitButton: true,
+              accentColor: const Color(0xFFEF4444),
             ),
           );
         } else if (errorStr.contains('unauthorized') || errorStr.contains('invalid') || errorStr.contains('غير صحيحة') || errorStr.contains('credential')) {
+
           showDialog(
             context: context,
             builder: (context) => _buildErrorPrompt(
@@ -452,16 +452,17 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   void _loginWithGoogle() async {
     final lang = Provider.of<LanguageProvider>(context, listen: false);
+    final wp = Provider.of<WorkspaceProvider>(context, listen: false);
     if (_isLoading || _isGoogleSigningIn) return; // Hard guard
     _isGoogleSigningIn = true;
     setState(() => _isLoading = true);
+    GoogleSignInAccount? account;
     try {
       try {
         await _googleSignIn.signOut();
         await _googleSignInFallback.signOut();
       } catch (_) {}
       
-      GoogleSignInAccount? account;
       try {
         account = await _googleSignIn.signIn();
       } catch (signInError) {
@@ -487,7 +488,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       await FirebaseAuth.instance.signInWithCredential(credential);
 
       // Now hand the credentials to the workspace backend as documented
-      final wp = Provider.of<WorkspaceProvider>(context, listen: false);
       await wp.addWorkspaceWithGoogle(
         host: kSiteHost,
         email: account.email,
@@ -509,18 +509,18 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         if (e is DeviceMismatchException || errorStr.contains('mismatch') || errorStr.contains('linked to another device') || errorStr.contains('disconnect the old device')) {
           showDialog(
             context: context,
-            barrierDismissible: false,
             builder: (context) => _buildErrorPrompt(
               context,
-              title: isRTL ? 'تنبيه الأمان' : 'Security Alert',
-              message: isRTL 
-                  ? 'هذا الحساب مرتبط بجهاز آخر بالفعل. يرجى إلغاء ربط الجهاز القديم أولاً.'
-                  : 'This account is already linked to another device. Please disconnect the old device first.',
+              title: isRTL ? 'جهاز غير مصرح' : 'Unauthorized Device',
+              message: isRTL
+                  ? 'هذا الحساب مرتبط بجهاز آخر بالفعل. لا يمكنك تسجيل الدخول من هذا الجهاز وفقاً لسياسة حماية الحساب.'
+                  : 'This account is already linked to another device. Login from this device is not allowed.',
               icon: Icons.phonelink_lock_rounded,
-              isExitButton: true,
+              accentColor: const Color(0xFFEF4444),
             ),
           );
         } else {
+
           showDialog(
             context: context,
             builder: (context) => _buildErrorPrompt(
@@ -1277,4 +1277,128 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       ),
     );
   }
+
+  void _showDeviceMismatchPrompt({
+    required String email,
+    String? password,
+    required VoidCallback onRetry,
+  }) {
+    final lang = Provider.of<LanguageProvider>(context, listen: false);
+    final wp = Provider.of<WorkspaceProvider>(context, listen: false);
+    final isRTL = lang.currentLocale.languageCode == 'ar';
+    final primaryColor = Theme.of(context).primaryColor;
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+        child: Dialog(
+          backgroundColor: Colors.transparent,
+          child: Container(
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              color: const Color(0xFF0F172A).withOpacity(0.95),
+              borderRadius: BorderRadius.circular(32),
+              border: Border.all(color: Colors.amber.withOpacity(0.3)),
+              boxShadow: const [
+                BoxShadow(color: Colors.black54, blurRadius: 40, spreadRadius: 10)
+              ],
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.amber.withOpacity(0.12),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(Icons.phonelink_lock_rounded, color: Colors.amber, size: 40),
+                ),
+                const SizedBox(height: 20),
+                Text(
+                  isRTL ? 'ربط جهاز جديد' : 'Link New Device',
+                  style: GoogleFonts.cairo(
+                    color: Colors.white,
+                    fontSize: 20,
+                    fontWeight: FontWeight.w900,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  isRTL
+                      ? 'هذا الحساب مرتبط بجهاز آخر بالفعل. هل ترغب في إلغاء ربط الجهاز القديم وتفعيل الدخول من هذا الجهاز؟'
+                      : 'This account is already linked to another device. Would you like to unlink the old device and activate this device now?',
+                  style: GoogleFonts.cairo(
+                    color: Colors.white70,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
+                    height: 1.6,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 28),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () async {
+                      Navigator.pop(ctx);
+                      setState(() => _isLoading = true);
+                      try {
+                        await wp.disconnectDevice(kSiteHost, email, password: password);
+                        if (mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              backgroundColor: Colors.green,
+                              content: Text(isRTL ? 'تم إلغاء ربط الجهاز القديم بنجاح. جاري تسجيل الدخول...' : 'Old device unlinked successfully. Logging in...'),
+                            ),
+                          );
+                          onRetry();
+                        }
+                      } catch (err) {
+                        if (mounted) {
+                          setState(() => _isLoading = false);
+                          showDialog(
+                            context: context,
+                            builder: (context) => _buildErrorPrompt(
+                              context,
+                              title: isRTL ? 'فشل إلغاء الربط' : 'Unlink Failed',
+                              message: err.toString().replaceAll('Exception: ', ''),
+                              icon: Icons.error_outline_rounded,
+                            ),
+                          );
+                        }
+                      }
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: primaryColor,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                      elevation: 0,
+                    ),
+                    child: Text(
+                      isRTL ? 'إلغاء ربط الجهاز القديم ومتابعة الدخول' : 'Unlink Old Device & Login',
+                      style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 13),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                TextButton(
+                  onPressed: () => Navigator.pop(ctx),
+                  child: Text(
+                    isRTL ? 'إلغاء' : 'Cancel',
+                    style: GoogleFonts.cairo(color: Colors.white54, fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 }
+

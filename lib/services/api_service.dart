@@ -40,6 +40,14 @@ class UserBannedException implements Exception {
   String toString() => message;
 }
 
+class MaintenanceModeException implements Exception {
+  final String message;
+  MaintenanceModeException([this.message = 'The service is currently undergoing maintenance.']);
+  @override
+  String toString() => message;
+}
+
+
 class ApiService {
   final _stateKey = 'app_state';
   AppState? _state;
@@ -405,14 +413,13 @@ class ApiService {
 
     final fullErrText = (data is Map ? ('${data['error'] ?? ''} ${data['message'] ?? ''}') : '').toLowerCase();
     if (fullErrText.contains('mismatch') || fullErrText.contains('linked to another device') || fullErrText.contains('disconnect the old device') || fullErrText.contains('another device')) {
-      await clearSession();
-      DerasyApp.navigatorKey.currentState?.pushNamedAndRemoveUntil('/', (route) => false, arguments: 'device_mismatch');
       throw DeviceMismatchException(
         (data is Map && data['message'] != null && data['message'].toString().isNotEmpty)
             ? data['message'].toString()
             : 'This account is already linked to another device. Please disconnect the old device first.'
       );
     }
+
     
     if (response.statusCode >= 400) {
       final formattedMsg = extractErrorMessage(data is Map ? Map<String, dynamic>.from(data) : {}, 'API Error (${response.statusCode})');
@@ -1326,7 +1333,11 @@ class ApiService {
   Future<void> reportSecurityAlert(String incidentType, {String description = ''}) async {
     try {
       await request('POST', '/mobile/security-alerts', body: {
+        'violation_type': incidentType,
         'incident_type': incidentType,
+        'deviceId': deviceId,
+        'hwid': deviceId,
+        'timestamp': DateTime.now().toIso8601String(),
         'description': description,
       });
       debugPrint('🔒 Security alert reported: $incidentType');
@@ -1334,4 +1345,101 @@ class ApiService {
       debugPrint('⚠️ Failed to report security alert: $e');
     }
   }
+
+  // DEVICE UNLINK: /api/auth/device/disconnect
+  Future<Map<String, dynamic>> disconnectDevice(String host, String email, {String? password, String? token}) async {
+    await _checkDeviceSafety();
+    final uri = _buildUri(host, '/api/auth/device/disconnect');
+    final authToken = token ?? activeWorkspace?.token;
+    final body = {
+      'email': email,
+      if (password != null && password.isNotEmpty) 'password': password,
+      'deviceId': deviceId,
+      'hwid': deviceId,
+      'device_id': deviceId,
+    };
+    debugPrint('-----------------------------------------');
+    debugPrint('🔌 DISCONNECT DEVICE API CALL: $uri');
+    debugPrint('📦 BODY: ${json.encode(body)}');
+    debugPrint('-----------------------------------------');
+
+    var response = await http.post(
+      uri,
+      headers: {
+        'Host': host,
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'site_link': kSiteUrl,
+        'site-link': kSiteUrl,
+        'X-Site-Link': kSiteUrl,
+        if (authToken != null && authToken.isNotEmpty) 'Authorization': 'Bearer $authToken',
+      },
+      body: json.encode(body),
+    );
+
+    debugPrint('📥 DISCONNECT DEVICE STATUS: ${response.statusCode}');
+    debugPrint('📦 DISCONNECT DEVICE RESPONSE: ${response.body}');
+    final data = parseJsonResponse(response);
+    if (response.statusCode >= 400) {
+      throw Exception(extractErrorMessage(data, 'Failed to disconnect device'));
+    }
+    return data;
+  }
+
+
+  // LIVE CLASSES: /api/live-classes
+  Future<Map<String, dynamic>> getLiveClasses() async {
+    return await request('GET', '/live-classes');
+  }
+
+  // LIVE CLASS CHECKOUT: /api/live-classes/[id]/checkout
+  Future<Map<String, dynamic>> checkoutLiveClass(int classId, {String paymentMethod = 'wallet'}) async {
+    return await request('POST', '/live-classes/$classId/checkout', body: {
+      'payment_method': paymentMethod,
+    });
+  }
+
+  // LIVE CLASS ATTENDANCE HEARTBEAT: /api/live-classes/[id]/heartbeat
+  Future<Map<String, dynamic>> sendLiveClassHeartbeat(int classId) async {
+    final workspace = activeWorkspace;
+    return await request('POST', '/live-classes/$classId/heartbeat', body: {
+      'user_id': workspace?.id,
+      'client_timestamp': DateTime.now().toIso8601String(),
+    });
+  }
+
+
+  // MONTHLY BILLING: /api/billing/monthly
+  Future<Map<String, dynamic>> settleMonthlyBill() async {
+    return await request('POST', '/billing/monthly');
+  }
+
+  // PARENT PORTAL: /api/parent/students
+  Future<Map<String, dynamic>> getParentStudents() async {
+    return await request('GET', '/parent/students');
+  }
+
+  // PARENT PORTAL STUDENT DETAILS: /api/parent/student/[studentId]
+  Future<Map<String, dynamic>> getParentStudentDetails(int studentId) async {
+    return await request('GET', '/parent/student/$studentId');
+  }
+
+  // WHITEBOARD: /api/courses/[id]/whiteboard
+  Future<Map<String, dynamic>> getWhiteboard(int courseId) async {
+    return await request('GET', '/courses/$courseId/whiteboard');
+  }
+
+  // WHITEBOARD SYNC: /api/courses/[id]/whiteboard/sync
+  Future<Map<String, dynamic>> syncWhiteboardStroke(int courseId, Map<String, dynamic> body) async {
+    return await request('POST', '/courses/$courseId/whiteboard/sync', body: body);
+  }
+
+  // WHITEBOARD SNAPSHOT: /api/courses/[id]/whiteboard/snapshot
+  Future<Map<String, dynamic>> saveWhiteboardSnapshot(int courseId, String base64Url, String name) async {
+    return await request('POST', '/courses/$courseId/whiteboard/snapshot', body: {
+      'snapshotDataUrl': base64Url,
+      'snapshotName': name,
+    });
+  }
 }
+

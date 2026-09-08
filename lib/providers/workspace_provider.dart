@@ -374,7 +374,12 @@ class WorkspaceProvider with ChangeNotifier {
     try {
       await _apiService.setConnectData(workspace: workspace);
     } catch (e) {
-      debugPrint('Set Connect Data Error (Token Login): $e');
+      debugPrint('Set Connect Data (Token Login): $e');
+      if (e is DeviceMismatchException || e is UserBannedException || e.toString().toLowerCase().contains('mismatch') || e.toString().toLowerCase().contains('linked to another device')) {
+        await _apiService.removeWorkspace(workspace.id);
+        await _apiService.clearSession();
+        rethrow;
+      }
     }
     await enrichWorkspace(workspace.id);
     notifyListeners();
@@ -402,7 +407,12 @@ class WorkspaceProvider with ChangeNotifier {
     try {
       await _apiService.setConnectData(workspace: workspace);
     } catch (e) {
-      debugPrint('Set Connect Data Error (Manual Login): $e');
+      debugPrint('Set Connect Data (Manual Login): $e');
+      if (e is DeviceMismatchException || e is UserBannedException || e.toString().toLowerCase().contains('mismatch') || e.toString().toLowerCase().contains('linked to another device')) {
+        await _apiService.removeWorkspace(workspace.id);
+        await _apiService.clearSession();
+        rethrow;
+      }
     }
     await enrichWorkspace(workspace.id);
     notifyListeners();
@@ -443,7 +453,12 @@ class WorkspaceProvider with ChangeNotifier {
     try {
       await _apiService.setConnectData(workspace: workspace);
     } catch (e) {
-      debugPrint('Set Connect Data Error (Google Login): $e');
+      debugPrint('Set Connect Data (Google Login): $e');
+      if (e is DeviceMismatchException || e is UserBannedException || e.toString().toLowerCase().contains('mismatch') || e.toString().toLowerCase().contains('linked to another device')) {
+        await _apiService.removeWorkspace(workspace.id);
+        await _apiService.clearSession();
+        rethrow;
+      }
     }
     await enrichWorkspace(workspace.id);
     notifyListeners();
@@ -483,17 +498,18 @@ class WorkspaceProvider with ChangeNotifier {
       addedAt: DateTime.now().millisecondsSinceEpoch,
     );
     await _apiService.addWorkspace(workspace);
-    
-    // Defer non-critical API calls to the background to speed up UI transition
-    Future.microtask(() async {
-      try {
-        await _apiService.setConnectData(workspace: workspace);
-      } catch (e) {
-        debugPrint('Set Connect Data Error (Register): $e');
+    try {
+      await _apiService.setConnectData(workspace: workspace);
+    } catch (e) {
+      debugPrint('Set Connect Data (Register): $e');
+      if (e is DeviceMismatchException || e is UserBannedException || e.toString().toLowerCase().contains('mismatch') || e.toString().toLowerCase().contains('linked to another device')) {
+        await _apiService.removeWorkspace(workspace.id);
+        await _apiService.clearSession();
+        rethrow;
       }
-      await enrichWorkspace(workspace.id);
-      notifyListeners();
-    });
+    }
+    await enrichWorkspace(workspace.id);
+    notifyListeners();
   }
 
   Future<void> sendOtp(String host, String email) async {
@@ -536,17 +552,18 @@ class WorkspaceProvider with ChangeNotifier {
       addedAt: DateTime.now().millisecondsSinceEpoch,
     );
     await _apiService.addWorkspace(workspace);
-    
-    // Defer non-critical API calls to the background to speed up UI transition
-    Future.microtask(() async {
-      try {
-        await _apiService.setConnectData(workspace: workspace);
-      } catch (e) {
-        debugPrint('Set Connect Data Error (OTP Register): $e');
+    try {
+      await _apiService.setConnectData(workspace: workspace);
+    } catch (e) {
+      debugPrint('Set Connect Data (OTP Register): $e');
+      if (e is DeviceMismatchException || e is UserBannedException || e.toString().toLowerCase().contains('mismatch') || e.toString().toLowerCase().contains('linked to another device')) {
+        await _apiService.removeWorkspace(workspace.id);
+        await _apiService.clearSession();
+        rethrow;
       }
-      await enrichWorkspace(workspace.id);
-      notifyListeners();
-    });
+    }
+    await enrichWorkspace(workspace.id);
+    notifyListeners();
   }
 
   Future<void> switchWorkspace(String id, [BuildContext? context]) async {
@@ -821,4 +838,46 @@ class WorkspaceProvider with ChangeNotifier {
 
   Future<void> reportSecurityAlert(String incidentType, {String description = ''}) =>
       _apiService.reportSecurityAlert(incidentType, description: description);
+
+  // DEVICE UNLINK
+  Future<Map<String, dynamic>> disconnectDevice(String host, String email, {String? password, String? token}) async {
+    final res = await _apiService.disconnectDevice(host, email, password: password, token: token);
+    notifyListeners();
+    return res;
+  }
+
+
+  // LIVE CLASSES
+  Future<Map<String, dynamic>> getLiveClasses() => _apiService.getLiveClasses();
+  
+  Future<Map<String, dynamic>> checkoutLiveClass(int classId, {String paymentMethod = 'wallet'}) async {
+    final res = await _apiService.checkoutLiveClass(classId, paymentMethod: paymentMethod);
+    invalidateCache();
+    await eagerLoad();
+    return res;
+  }
+
+  Future<Map<String, dynamic>> sendLiveClassHeartbeat(int classId) =>
+      _apiService.sendLiveClassHeartbeat(classId);
+
+  // MONTHLY BILLING
+  Future<Map<String, dynamic>> settleMonthlyBill() async {
+    final res = await _apiService.settleMonthlyBill();
+    invalidateCache();
+    await eagerLoad();
+    return res;
+  }
+
+  // PARENT PORTAL
+  Future<Map<String, dynamic>> getParentStudents() => _apiService.getParentStudents();
+  Future<Map<String, dynamic>> getParentStudentDetails(int studentId) =>
+      _apiService.getParentStudentDetails(studentId);
+
+  // WHITEBOARD
+  Future<Map<String, dynamic>> getWhiteboard(int courseId) => _apiService.getWhiteboard(courseId);
+  Future<Map<String, dynamic>> syncWhiteboardStroke(int courseId, Map<String, dynamic> body) =>
+      _apiService.syncWhiteboardStroke(courseId, body);
+  Future<Map<String, dynamic>> saveWhiteboardSnapshot(int courseId, String base64Url, String name) =>
+      _apiService.saveWhiteboardSnapshot(courseId, base64Url, name);
 }
+
