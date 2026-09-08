@@ -15,12 +15,12 @@ if (localPropertiesFile.exists()) {
 
 def flutterVersionCode = localProperties.getProperty("flutter.versionCode")
 if (flutterVersionCode == null) {
-    flutterVersionCode = "93"
+    flutterVersionCode = "94"
 }
 
 def flutterVersionName = localProperties.getProperty("flutter.versionName")
 if (flutterVersionName == null) {
-    flutterVersionName = "93"
+    flutterVersionName = "94"
 }
 
 def keystoreProperties = new Properties()
@@ -60,7 +60,7 @@ android {
         applicationId = "com.elmasa.app"
         minSdk = 26
         targetSdk = 36
-        versionCode = 93
+        versionCode = 94
         versionName = "1.0.0"
 
         externalNativeBuild {
