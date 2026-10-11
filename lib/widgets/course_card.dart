@@ -6,7 +6,7 @@ import 'package:elmasa/providers/language_provider.dart';
 class CourseCard extends StatelessWidget {
   final Map<String, dynamic> course;
   final bool isEnrolled;
-  final bool enablePurchasing;
+  final bool allowPaymentInApp;
   final bool isFavorite;
   final VoidCallback onTap;
   final VoidCallback? onFavoriteTap;
@@ -17,7 +17,7 @@ class CourseCard extends StatelessWidget {
     super.key,
     required this.course,
     required this.isEnrolled,
-    required this.enablePurchasing,
+    required this.allowPaymentInApp,
     required this.isFavorite,
     required this.onTap,
     this.onFavoriteTap,
@@ -64,30 +64,69 @@ class CourseCard extends StatelessWidget {
         ?? course['enrollment_count']?.toString()
         ?? course['members_count']?.toString() ?? '0';
 
+    final Color freeColor = const Color(0xFF10B981);
+
+    Widget thumbPlaceholder() => Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [primary.withOpacity(0.35), primary.withOpacity(0.08)],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+          ),
+          child: Icon(IconlyLight.image, color: primary, size: 34),
+        );
+
+    Widget metaPill(IconData icon, String text) => Container(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+          decoration: BoxDecoration(
+            color: onSurface.withOpacity(isDark ? 0.07 : 0.05),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(icon, size: 12, color: primary),
+              const SizedBox(width: 4),
+              Text(
+                text,
+                style: GoogleFonts.cairo(
+                  color: onSurface.withOpacity(0.75),
+                  fontSize: 11,
+                  fontWeight: FontWeight.w700,
+                  height: 1.2,
+                ),
+              ),
+            ],
+          ),
+        );
+
     return Container(
-      margin: const EdgeInsets.symmetric(vertical: 6),
+      margin: const EdgeInsets.symmetric(vertical: 8),
       child: Material(
         color: Colors.transparent,
         child: InkWell(
           onTap: onTap,
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(24),
           child: Container(
             decoration: BoxDecoration(
-              color: isDark ? const Color(0xFF1E293B) : Colors.white,
-              borderRadius: BorderRadius.circular(20),
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: isDark
+                    ? [const Color(0xFF1E293B), Color.alphaBlend(primary.withOpacity(0.08), const Color(0xFF1E293B))]
+                    : [Colors.white, Color.alphaBlend(primary.withOpacity(0.05), Colors.white)],
+              ),
+              borderRadius: BorderRadius.circular(24),
               border: Border.all(
-                color: isDark 
-                    ? Colors.white.withOpacity(0.08) 
-                    : primary.withOpacity(0.08),
+                color: primary.withOpacity(isDark ? 0.18 : 0.12),
                 width: 1,
               ),
               boxShadow: [
                 BoxShadow(
-                  color: isDark 
-                      ? Colors.black.withOpacity(0.3) 
-                      : primary.withOpacity(0.06),
-                  blurRadius: 16,
-                  offset: const Offset(0, 6),
+                  color: isDark ? Colors.black.withOpacity(0.35) : primary.withOpacity(0.10),
+                  blurRadius: 20,
+                  offset: const Offset(0, 8),
                 ),
               ],
             ),
@@ -95,69 +134,60 @@ class CourseCard extends StatelessWidget {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                // ── THUMBNAIL ─────────────────────────────────────────────────
+                // ── THUMBNAIL ─────────────────────────────────────────────
                 SizedBox(
-                  width: 96,
-                  height: 96,
+                  width: 104,
+                  height: 112,
                   child: Stack(
                     children: [
                       Positioned.fill(
                         child: ClipRRect(
-                          borderRadius: BorderRadius.circular(16),
+                          borderRadius: BorderRadius.circular(18),
                           child: thumb.isNotEmpty
                               ? Image.network(
                                   thumb,
                                   fit: BoxFit.cover,
-                                  errorBuilder: (c, e, s) => Container(
-                                    decoration: BoxDecoration(
-                                      gradient: LinearGradient(
-                                        colors: [primary.withOpacity(0.2), primary.withOpacity(0.05)],
-                                        begin: Alignment.topLeft,
-                                        end: Alignment.bottomRight,
-                                      ),
-                                    ),
-                                    child: Icon(IconlyLight.image, color: primary, size: 30),
-                                  ),
+                                  errorBuilder: (c, e, s) => thumbPlaceholder(),
                                 )
-                              : Container(
-                                  decoration: BoxDecoration(
-                                    gradient: LinearGradient(
-                                      colors: [primary.withOpacity(0.2), primary.withOpacity(0.05)],
-                                      begin: Alignment.topLeft,
-                                      end: Alignment.bottomRight,
-                                    ),
-                                  ),
-                                  child: Icon(IconlyLight.image, color: primary, size: 30),
-                                ),
+                              : thumbPlaceholder(),
+                        ),
+                      ),
+                      // bottom fade for readability
+                      Positioned.fill(
+                        child: IgnorePointer(
+                          child: DecoratedBox(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(18),
+                              gradient: LinearGradient(
+                                begin: Alignment.topCenter,
+                                end: Alignment.bottomCenter,
+                                colors: [Colors.transparent, Colors.black.withOpacity(0.18)],
+                              ),
+                            ),
+                          ),
                         ),
                       ),
                       if (hasDemo)
                         Center(
                           child: Container(
-                            padding: const EdgeInsets.all(8),
+                            padding: const EdgeInsets.all(9),
                             decoration: BoxDecoration(
-                              color: Colors.black.withOpacity(0.65),
+                              color: Colors.white.withOpacity(0.92),
                               shape: BoxShape.circle,
                               boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withOpacity(0.3),
-                                  blurRadius: 8,
-                                ),
+                                BoxShadow(color: Colors.black.withOpacity(0.25), blurRadius: 10),
                               ],
                             ),
-                            child: const Icon(IconlyBold.play, color: Colors.white, size: 16),
+                            child: Icon(IconlyBold.play, color: primary, size: 16),
                           ),
                         ),
                       if (isEnrolled)
                         Positioned(
                           top: 6,
-                          right: 6,
+                          left: 6,
                           child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFF10B981),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
+                            padding: const EdgeInsets.all(4),
+                            decoration: BoxDecoration(color: freeColor, shape: BoxShape.circle),
                             child: const Icon(Icons.check_rounded, color: Colors.white, size: 12),
                           ),
                         ),
@@ -165,59 +195,68 @@ class CourseCard extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 14),
-                // ── DETAILS COLUMN ────────────────────────────────────────────
+                // ── DETAILS ───────────────────────────────────────────────
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           if (cat.isNotEmpty)
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                              decoration: BoxDecoration(
-                                color: primary.withOpacity(0.12),
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: Text(
-                                cat.toUpperCase(),
-                                style: GoogleFonts.cairo(
-                                  color: primary,
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.w800,
-                                  letterSpacing: 0.5,
+                            Flexible(
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 3),
+                                decoration: BoxDecoration(
+                                  color: primary.withOpacity(0.14),
+                                  borderRadius: BorderRadius.circular(100),
+                                ),
+                                child: Text(
+                                  cat.toUpperCase(),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: GoogleFonts.cairo(
+                                    color: primary,
+                                    fontSize: 9.5,
+                                    fontWeight: FontWeight.w800,
+                                    letterSpacing: 0.4,
+                                    height: 1.3,
+                                  ),
                                 ),
                               ),
-                            )
-                          else
-                            const SizedBox.shrink(),
+                            ),
+                          const Spacer(),
                           if (onFavoriteTap != null)
                             InkWell(
                               onTap: onFavoriteTap,
                               borderRadius: BorderRadius.circular(20),
-                              child: Padding(
-                                padding: const EdgeInsets.all(4),
+                              child: Container(
+                                padding: const EdgeInsets.all(6),
+                                decoration: BoxDecoration(
+                                  color: isFavorite
+                                      ? const Color(0xFFEF4444).withOpacity(0.12)
+                                      : onSurface.withOpacity(0.06),
+                                  shape: BoxShape.circle,
+                                ),
                                 child: Icon(
                                   isFavorite ? IconlyBold.heart : IconlyLight.heart,
-                                  color: isFavorite ? const Color(0xFFEF4444) : onSurface.withOpacity(0.35),
-                                  size: 18,
+                                  color: isFavorite ? const Color(0xFFEF4444) : onSurface.withOpacity(0.45),
+                                  size: 16,
                                 ),
                               ),
                             ),
                         ],
                       ),
-                      const SizedBox(height: 4),
+                      const SizedBox(height: 6),
                       Text(
                         title,
                         style: GoogleFonts.cairo(
                           color: onSurface,
-                          fontSize: 14,
+                          fontSize: 15,
                           fontWeight: FontWeight.w800,
-                          height: 1.25,
+                          height: 1.3,
                         ),
-                        maxLines: 1,
+                        maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
                       if (desc.isNotEmpty) ...[
@@ -227,24 +266,24 @@ class CourseCard extends StatelessWidget {
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: GoogleFonts.cairo(
-                            color: onSurface.withOpacity(0.55),
+                            color: onSurface.withOpacity(0.5),
                             fontSize: 11,
                             fontWeight: FontWeight.w500,
                           ),
                         ),
                       ],
-                      const SizedBox(height: 8),
-                      if (isEnrolled) ...[
+                      const SizedBox(height: 10),
+                      if (isEnrolled)
                         Row(
                           children: [
                             Expanded(
                               child: ClipRRect(
                                 borderRadius: BorderRadius.circular(6),
                                 child: LinearProgressIndicator(
-                                  value: progress / 100,
-                                  backgroundColor: primary.withOpacity(0.12),
+                                  value: (progress / 100).clamp(0.0, 1.0),
+                                  backgroundColor: primary.withOpacity(0.14),
                                   valueColor: AlwaysStoppedAnimation<Color>(primary),
-                                  minHeight: 5,
+                                  minHeight: 6,
                                 ),
                               ),
                             ),
@@ -258,57 +297,39 @@ class CourseCard extends StatelessWidget {
                               ),
                             ),
                           ],
-                        ),
-                      ] else ...[
+                        )
+                      else
                         Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Row(
-                              children: [
-                                Icon(IconlyLight.document, size: 12, color: onSurface.withOpacity(0.4)),
-                                const SizedBox(width: 4),
-                                Text(
-                                  '$lecturesCount',
-                                  style: GoogleFonts.cairo(
-                                    color: onSurface.withOpacity(0.6),
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.w700,
-                                  ),
-                                ),
-                                const SizedBox(width: 12),
-                                Icon(IconlyLight.user, size: 12, color: onSurface.withOpacity(0.4)),
-                                const SizedBox(width: 4),
-                                Text(
-                                  '$studentsCount',
-                                  style: GoogleFonts.cairo(
-                                    color: onSurface.withOpacity(0.6),
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.w700,
-                                  ),
-                                ),
-                              ],
+                            Expanded(
+                              child: Wrap(
+                                spacing: 6,
+                                runSpacing: 6,
+                                children: [
+                                  metaPill(IconlyLight.document, lecturesCount),
+                                  metaPill(IconlyLight.user, studentsCount),
+                                ],
+                              ),
                             ),
-                            if (enablePurchasing)
+                            if (allowPaymentInApp)
                               Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                                 decoration: BoxDecoration(
-                                  color: isFree 
-                                      ? const Color(0xFF10B981).withOpacity(0.12)
-                                      : primary.withOpacity(0.1),
+                                  color: isFree ? freeColor.withOpacity(0.14) : primary,
                                   borderRadius: BorderRadius.circular(10),
                                 ),
                                 child: Text(
                                   isFree ? lang.translate('free') : '$priceStr ${currency ?? ''}',
                                   style: GoogleFonts.cairo(
-                                    color: isFree ? const Color(0xFF10B981) : primary,
+                                    color: isFree ? freeColor : Colors.white,
                                     fontSize: 12,
                                     fontWeight: FontWeight.w900,
+                                    height: 1.2,
                                   ),
                                 ),
                               ),
                           ],
                         ),
-                      ],
                     ],
                   ),
                 ),

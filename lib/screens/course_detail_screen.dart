@@ -88,7 +88,7 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
                                     errorStr.contains('كاف');
       if (isInsufficientBalance) {
         if (mounted) {
-          final showCharge = wp.activeWorkspace?.enablePurchasing ?? true;
+          final showCharge = wp.mobileAllowPaymentInApp;
           final errorMsg = errorStr.replaceAll('Exception: ', '');
           showDialog(
             context: context,
@@ -714,10 +714,12 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
               slivers: [
                 // HERO IMAGE
                 SliverToBoxAdapter(
-                  child: Stack(
+                  child: ClipRRect(
+                    borderRadius: const BorderRadius.vertical(bottom: Radius.circular(32)),
+                    child: Stack(
                     children: [
                       AspectRatio(
-                        aspectRatio: 16 / 9,
+                        aspectRatio: 4 / 3,
                         child: GestureDetector(
                           onTap: () {
                             final imgUrl = course['image_url'] ?? course['thumbnail_url'];
@@ -741,7 +743,8 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
                           decoration: BoxDecoration(
                             gradient: LinearGradient(
                               begin: Alignment.topCenter, end: Alignment.bottomCenter,
-                              colors: [Colors.transparent, Colors.black.withOpacity(0.7)],
+                              stops: const [0.35, 1.0],
+                              colors: [Colors.transparent, Colors.black.withOpacity(0.85)],
                             ),
                           ),
                         ),
@@ -787,13 +790,38 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
                             ),
                           ),
                         ),
+                      Positioned(
+                        left: 24, right: 24, bottom: 22,
+                        child: IgnorePointer(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              if (catStr.isNotEmpty)
+                                Container(
+                                  margin: const EdgeInsets.only(bottom: 10),
+                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+                                  decoration: BoxDecoration(color: primaryColor, borderRadius: BorderRadius.circular(100)),
+                                  child: Text(catStr.toUpperCase(), style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 0.8)),
+                                ),
+                              Text(course['title'] ?? '', maxLines: 2, overflow: TextOverflow.ellipsis, style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.w900, height: 1.25, shadows: [Shadow(color: Colors.black54, blurRadius: 12)])),
+                            ],
+                          ),
+                        ),
+                      ),
                       SafeArea(
                         child: Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              const SizedBox(),
+                              Container(
+                                decoration: BoxDecoration(color: Colors.black45, shape: BoxShape.circle, border: Border.all(color: Colors.white12)),
+                                child: IconButton(
+                                  onPressed: () => _toggleCourseFavorite(wp, lang, isFavorited),
+                                  icon: Icon(isFavorited ? Icons.favorite_rounded : Icons.favorite_border_rounded, color: isFavorited ? const Color(0xFFEF4444) : Colors.white, size: 22),
+                                ),
+                              ),
                               Container(
                                 decoration: BoxDecoration(color: Colors.black45, shape: BoxShape.circle, border: Border.all(color: Colors.white12)),
                                 child: IconButton(onPressed: () => Navigator.pop(context), icon: const Icon(Icons.close_rounded, color: Colors.white, size: 22)),
@@ -804,13 +832,14 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
                       ),
                     ],
                   ),
+                  ),
                 ),
   
                 SliverPadding(
                   padding: const EdgeInsets.symmetric(horizontal: 24),
                   sliver: SliverList(
                     delegate: SliverChildListDelegate([
-                      const SizedBox(height: 10),
+                      const SizedBox(height: 20),
   
                       // ENROLLMENT STATUS BADGE
                       if (isEnrolled)
@@ -829,49 +858,33 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
                           ]),
                         ),
   
-                      // CATEGORY BADGE + PRICE
-                      Row(children: [
-                        if (catStr.isNotEmpty) ...[
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                            decoration: BoxDecoration(color: primaryColor.withOpacity(0.1), borderRadius: BorderRadius.circular(6), border: Border.all(color: primaryColor.withOpacity(0.2))),
-                            child: Text(catStr.toUpperCase(), style: TextStyle(color: primaryColor, fontSize: 8, fontWeight: FontWeight.w900, letterSpacing: 1)),
+                      // PRICE BADGE
+                      if (!isEnrolled && wp.mobileAllowPaymentInApp) ...[
+                        Align(
+                          alignment: AlignmentDirectional.centerStart,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                            decoration: BoxDecoration(color: Colors.amber.withOpacity(0.12), borderRadius: BorderRadius.circular(100), border: Border.all(color: Colors.amber.withOpacity(0.3))),
+                            child: Text('${course['price'] ?? '0'} ${lang.translate('currency_le') ?? 'LE'}', style: const TextStyle(color: Colors.amber, fontSize: 12, fontWeight: FontWeight.w900)),
                           ),
-                          const SizedBox(width: 8),
-                        ],
-                        if (!isEnrolled && (wp.activeWorkspace?.enablePurchasing ?? true)) ...[
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                            decoration: BoxDecoration(color: Colors.amber.withOpacity(0.12), borderRadius: BorderRadius.circular(6), border: Border.all(color: Colors.amber.withOpacity(0.25))),
-                            child: Text('${course['price'] ?? '0'} ${lang.translate('currency_le') ?? 'LE'}', style: const TextStyle(color: Colors.amber, fontSize: 10, fontWeight: FontWeight.w900)),
-                          ),
-                        ],
-                      ]),
-                      const SizedBox(height: 10),
-  
-                      // TITLE
-                      Text(course['title'] ?? '', style: TextStyle(color: textPrimary, fontSize: 20, fontWeight: FontWeight.w900, letterSpacing: -0.3, height: 1.2)),
-                      const SizedBox(height: 12),
-  
-                      // STATS ROW — real data
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                        decoration: BoxDecoration(color: overlayLight, borderRadius: BorderRadius.circular(12), border: Border.all(color: overlayMid)),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            _buildStat(Icons.play_lesson_rounded, '${materials.length}', lang.translate('materials') ?? 'Lessons', primaryColor, textPrimary),
-                            Container(width: 1, height: 16, color: overlayMid),
-                            _buildStat(Icons.people_rounded,
-                              (() { final m = course['members_count'] ?? course['students_count'] ?? course['members'] ?? 0; return m.toString(); })(),
-                              lang.translate('members') ?? 'Students', primaryColor, textPrimary),
-                          ],
                         ),
+                        const SizedBox(height: 14),
+                      ],
+
+                      // STATS ROW — real data
+                      Row(
+                        children: [
+                          Expanded(child: _buildStatTile(Icons.play_lesson_rounded, '${materials.length}', lang.translate('materials') ?? 'Lessons', primaryColor, textPrimary, isDark)),
+                          const SizedBox(width: 12),
+                          Expanded(child: _buildStatTile(Icons.people_rounded,
+                            (() { final m = course['members_count'] ?? course['students_count'] ?? course['members'] ?? 0; return m.toString(); })(),
+                            lang.translate('members') ?? 'Students', primaryColor, textPrimary, isDark)),
+                        ],
                       ),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 18),
   
                       // INLINE APPLY COUPON SECTION
-                      if (!isEnrolled && !wp.isGuest) ...[
+                      if (!isEnrolled && !wp.isGuest && wp.mobileAllowPaymentInApp) ...[
                         Container(
                           padding: const EdgeInsets.all(18),
                           decoration: BoxDecoration(
@@ -1145,12 +1158,12 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
                     // INSTRUCTOR CARD
                     Container(
                       padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(color: overlayLight, borderRadius: BorderRadius.circular(14), border: Border.all(color: overlayMid)),
+                      decoration: BoxDecoration(color: Theme.of(context).cardColor, borderRadius: BorderRadius.circular(22), border: Border.all(color: primaryColor.withOpacity(0.18)), boxShadow: [BoxShadow(color: primaryColor.withOpacity(0.08), blurRadius: 18, offset: const Offset(0, 6))]),
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                         CircleAvatar(
-                          radius: 22,
+                          radius: 26,
                           backgroundColor: primaryColor.withOpacity(0.15),
                           backgroundImage: course['instructor_avatar'] != null ? NetworkImage(course['instructor_avatar'].toString()) : null,
                           child: course['instructor_avatar'] == null ? Icon(Icons.person_rounded, color: primaryColor, size: 22) : null,
@@ -1174,56 +1187,14 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
                     ),
                     const SizedBox(height: 28),
 
-                    // FAVORITES TOGGLE — optimistic UI
-                    InkWell(
-                      onTap: () async {
-                        if (!_checkLogin(context)) return;
-                        final newFav = !isFavorited;
-                        
-                        ScaffoldMessenger.of(context).clearSnackBars();
-                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                          content: Row(children: [
-                            Icon(newFav ? Icons.favorite_rounded : Icons.favorite_border_rounded, color: Colors.white, size: 16),
-                            const SizedBox(width: 10),
-                            Text(newFav ? (lang.translate('added_to_favorites') ?? 'Added to favorites') : (lang.translate('removed_from_favorites') ?? 'Removed from favorites')),
-                          ]),
-                          backgroundColor: newFav ? Colors.green.shade700 : Colors.grey.shade700,
-                          behavior: SnackBarBehavior.floating,
-                          duration: const Duration(seconds: 2),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                          margin: const EdgeInsets.fromLTRB(16, 0, 16, 80),
-                        ));
-
-                        try {
-                          await wp.toggleFavoriteOptimistic(widget.courseId);
-                        } catch (e) {
-                          if (mounted) {
-                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                              content: Text(e.toString().replaceAll('Exception: ', '')),
-                              backgroundColor: Colors.red.shade700,
-                              behavior: SnackBarBehavior.floating,
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                              margin: const EdgeInsets.fromLTRB(16, 0, 16, 80),
-                            ));
-                          }
-                          debugPrint('Fav Toggle Error: $e');
-                        }
-                      },
-                      borderRadius: BorderRadius.circular(10),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 8),
-                        child: _buildQuickAction(
-                          isFavorited ? Icons.favorite_rounded : Icons.favorite_border_rounded,
-                          isFavorited ? (lang.translate('remove_favorites') ?? 'REMOVE FROM FAVORITES').toUpperCase() : (lang.translate('save_favorites') ?? 'SAVE IN FAVORITES').toUpperCase(),
-                          isFavorited ? primaryColor : onSurface.withOpacity(0.6),
-                        ),
-                      ),
-                    ),
-
                     const SizedBox(height: 40),
 
                     // CURRICULUM HEADER
-                    Text(lang.translate('curriculum')?.toUpperCase() ?? "ACADEMY CURRICULUM", style: TextStyle(color: textPrimary, fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: 2)),
+                    Row(children: [
+                      Container(width: 4, height: 20, decoration: BoxDecoration(color: primaryColor, borderRadius: BorderRadius.circular(4))),
+                      const SizedBox(width: 10),
+                      Text(lang.translate('curriculum') ?? "Curriculum", style: TextStyle(color: textPrimary, fontSize: 18, fontWeight: FontWeight.w900)),
+                    ]),
                     const SizedBox(height: 16),
 
                     // FILTER PILLS — use fixed type-key + display label pairs
@@ -1345,7 +1316,7 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
   // ─── SUBSCRIBE BOTTOM BAR ─────────────────────────────────────────────────
   Widget _buildSubscribeBar(Map<String, dynamic> course, LanguageProvider lang, Color primaryColor, BuildContext context) {
     final wp = Provider.of<WorkspaceProvider>(context, listen: false);
-    final bool enablePurchasing = wp.activeWorkspace?.enablePurchasing ?? true;
+    final bool allowPayment = wp.mobileAllowPaymentInApp;
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final onSurface = Theme.of(context).colorScheme.onSurface;
     final bottomBarColor = isDark ? const Color(0xFF0A0A0A) : Colors.white;
@@ -1358,6 +1329,7 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
       padding: const EdgeInsets.fromLTRB(20, 16, 20, 32),
       decoration: BoxDecoration(
         color: bottomBarColor,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
         border: Border(top: BorderSide(color: borderColor, width: 1)),
         boxShadow: [
           BoxShadow(
@@ -1396,7 +1368,7 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
               ),
             ),
           ] else ...[
-            if (wp.activeWorkspace?.enablePurchasing ?? true) ...[
+            if (wp.mobileAllowPaymentInApp) ...[
               // PRICE ROW
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -1440,10 +1412,10 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(enablePurchasing ? Icons.wallet_rounded : Icons.check_circle_outline_rounded, size: 20),
+                    Icon(allowPayment ? Icons.wallet_rounded : Icons.check_circle_outline_rounded, size: 20),
                     const SizedBox(width: 10),
                     Text(
-                      enablePurchasing
+                      allowPayment
                           ? (lang.translate('redeem_wallet') ?? 'Subscribe using Wallet')
                           : (lang.translate('subscribe_now') ?? 'Enroll Now'),
                       style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w900),
@@ -1591,6 +1563,42 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
     );
   }
 
+  Future<void> _toggleCourseFavorite(WorkspaceProvider wp, LanguageProvider lang, bool isFavorited) async {
+
+                        if (!_checkLogin(context)) return;
+                        final newFav = !isFavorited;
+                        
+                        ScaffoldMessenger.of(context).clearSnackBars();
+                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                          content: Row(children: [
+                            Icon(newFav ? Icons.favorite_rounded : Icons.favorite_border_rounded, color: Colors.white, size: 16),
+                            const SizedBox(width: 10),
+                            Text(newFav ? (lang.translate('added_to_favorites') ?? 'Added to favorites') : (lang.translate('removed_from_favorites') ?? 'Removed from favorites')),
+                          ]),
+                          backgroundColor: newFav ? Colors.green.shade700 : Colors.grey.shade700,
+                          behavior: SnackBarBehavior.floating,
+                          duration: const Duration(seconds: 2),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          margin: const EdgeInsets.fromLTRB(16, 0, 16, 80),
+                        ));
+
+                        try {
+                          await wp.toggleFavoriteOptimistic(widget.courseId);
+                        } catch (e) {
+                          if (mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                              content: Text(e.toString().replaceAll('Exception: ', '')),
+                              backgroundColor: Colors.red.shade700,
+                              behavior: SnackBarBehavior.floating,
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                              margin: const EdgeInsets.fromLTRB(16, 0, 16, 80),
+                            ));
+                          }
+                          debugPrint('Fav Toggle Error: $e');
+                        }
+                      
+  }
+
   Widget _buildQuickAction(IconData icon, String label, [Color? iconColor]) {
     final onSurface = Theme.of(context).colorScheme.onSurface;
     return Row(
@@ -1599,6 +1607,40 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
         const SizedBox(width: 14),
         Text(label, style: TextStyle(color: onSurface.withOpacity(0.4), fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: 1)),
       ],
+    );
+  }
+
+  Widget _buildStatTile(IconData icon, String value, String label, Color accent, Color textPrimary, bool isDark) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [accent.withOpacity(isDark ? 0.18 : 0.12), accent.withOpacity(isDark ? 0.05 : 0.03)],
+        ),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: accent.withOpacity(0.2)),
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(9),
+            decoration: BoxDecoration(color: accent, borderRadius: BorderRadius.circular(12)),
+            child: Icon(icon, color: Colors.white, size: 16),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(value, style: TextStyle(color: textPrimary, fontSize: 18, fontWeight: FontWeight.w900, height: 1.1)),
+                Text(label, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(color: textPrimary.withOpacity(0.55), fontSize: 11, fontWeight: FontWeight.w700)),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 

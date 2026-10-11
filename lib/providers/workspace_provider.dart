@@ -17,6 +17,7 @@ class WorkspaceProvider with ChangeNotifier {
   bool _isInitialized = false;
   bool _isEagerLoaded = false;
   final Map<int, Map<String, dynamic>> _lastAccessedMaterials = {};
+  int _pendingFavoriteToggles = 0;
   final Set<int> _localFavoriteIds = {}; // TRUTH FOR OPTIMISTIC FAVS (Shared across screens)
 
 
@@ -69,6 +70,7 @@ class WorkspaceProvider with ChangeNotifier {
   bool mobileMaintenanceMode = false;
   String? mobileMaintenanceMessage;
   String? mobileReleaseNotes;
+  bool mobileAllowPaymentInApp = false;
 
 
   void setRequireLogin(bool value) {
@@ -181,6 +183,9 @@ class WorkspaceProvider with ChangeNotifier {
       
       mobileMaintenanceMessage = data['maintenanceMessage']?.toString() ?? data['mobile_maintenance_msg']?.toString();
       mobileReleaseNotes = data['releaseNotes']?.toString() ?? data['mobile_release_notes']?.toString();
+
+      final allowPay = data['allow_payment_in_app'] ?? data['allowPaymentInApp'];
+      mobileAllowPaymentInApp = allowPay == true || allowPay == 1 || allowPay.toString() == '1' || allowPay.toString().toLowerCase() == 'true';
       
       if (data['appName'] != null) {
         publicSiteName = data['appName'].toString();
@@ -637,16 +642,22 @@ class WorkspaceProvider with ChangeNotifier {
     notifyListeners();
 
     // 2. BACKEND SYNC
+    _pendingFavoriteToggles++;
     try {
-      await _apiService.toggleFavorite(courseId);
-      // Optional: re-fetch favorites list in background to keep full movie objects fresh
-      getFavorites().then((res) {
-        _cachedFavorites = res;
-        final List favs = (res['favorites'] as List?) ?? [];
-        _localFavoriteIds.clear();
-        _localFavoriteIds.addAll(favs.map((f) => int.tryParse(f['id']?.toString() ?? '0') ?? 0).where((id) => id != 0));
+      final res = await _apiService.toggleFavorite(courseId);
+
+      // The server's answer is the truth for this course ({"success":true,"isFavorite":true})
+      final serverFav = res['isFavorite'];
+      if (serverFav is bool) {
+        if (serverFav) {
+          _localFavoriteIds.add(courseId);
+        } else {
+          _localFavoriteIds.remove(courseId);
+        }
         notifyListeners();
-      });
+      }
+
+      _refreshFavoritesCache();
     } catch (e) {
       // REVERT ON ERROR
       if (wasFav) {
@@ -656,6 +667,19 @@ class WorkspaceProvider with ChangeNotifier {
       }
       notifyListeners();
       rethrow;
+    } finally {
+      _pendingFavoriteToggles--;
+    }
+  }
+
+  Future<void> _refreshFavoritesCache() async {
+    try {
+      final res = await _apiService.getFavorites();
+      if (_pendingFavoriteToggles > 0) return;
+      _cachedFavorites = res;
+      notifyListeners();
+    } catch (e) {
+      debugPrint('⚠️ Favorites refresh error: $e');
     }
   }
 

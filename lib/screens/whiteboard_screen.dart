@@ -30,7 +30,7 @@ class _WhiteboardScreenState extends State<WhiteboardScreen> {
   // Drawing state
   List<_DrawingStroke> _strokes = [];
   List<Offset> _currentPoints = [];
-  Color _selectedColor = const Color(0xFF4F46E5);
+  Color _selectedColor = const Color(0xFF16A34A);
   double _selectedWidth = 4.0;
   
   // Real-time connection
@@ -38,7 +38,7 @@ class _WhiteboardScreenState extends State<WhiteboardScreen> {
   bool _isConnectingSSE = false;
 
   final List<Color> _palette = [
-    const Color(0xFF4F46E5), // Indigo
+    const Color(0xFF16A34A), // Green
     const Color(0xFFEF4444), // Red
     const Color(0xFF10B981), // Emerald
     const Color(0xFFF59E0B), // Amber

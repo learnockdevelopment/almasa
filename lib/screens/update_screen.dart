@@ -38,7 +38,7 @@ class UpdateScreen extends StatelessWidget {
           Positioned(
             bottom: -50,
             left: -50,
-            child: _buildGlowSphere(const Color(0xFF6366F1).withOpacity(0.12), 300),
+            child: _buildGlowSphere(const Color(0xFF10B981).withOpacity(0.12), 300),
           ),
           Positioned(
             top: 250,
@@ -63,7 +63,7 @@ class UpdateScreen extends StatelessWidget {
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           gradient: LinearGradient(
-                            colors: [primaryColor.withOpacity(0.15), const Color(0xFF6366F1).withOpacity(0.05)],
+                            colors: [primaryColor.withOpacity(0.15), const Color(0xFF10B981).withOpacity(0.05)],
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
                           ),
@@ -243,7 +243,7 @@ class UpdateScreen extends StatelessWidget {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(22),
         gradient: LinearGradient(
-          colors: [primaryColor, const Color(0xFF6366F1)],
+          colors: [primaryColor, const Color(0xFF10B981)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),

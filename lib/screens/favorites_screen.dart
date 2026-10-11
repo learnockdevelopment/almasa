@@ -61,6 +61,9 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
         _favoriteCourses = favs.map((f) {
            final fmap = Map<String, dynamic>.from(f);
            final fid = int.tryParse(fmap['id']?.toString() ?? '0') ?? 0;
+           fmap['is_favorite'] = true;
+           if (enrolledIds.contains(fid)) fmap['enrolled'] = true;
+           return fmap;
         }).toList();
       });
     }
@@ -249,6 +252,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                     height: 180, width: double.infinity, fit: BoxFit.cover,
                     errorBuilder: (c,e,s) => Container(height: 180, color: Theme.of(context).dividerColor, child: const Icon(Icons.school_rounded, size: 48)),
                   ),
+                  if (wp.mobileAllowPaymentInApp)
                   Positioned(
                     top: 12, right: 12,
                     child: Container(

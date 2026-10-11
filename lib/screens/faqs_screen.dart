@@ -62,6 +62,15 @@ class _FaqsScreenState extends State<FaqsScreen> {
       ];
     }
 
+    // Hide payment / account-creation FAQs when in-app payment is disabled
+    if (!wp.mobileAllowPaymentInApp) {
+      const hiddenFaqs = [
+        'كيف أستطيع إنشاء حساب وبدء المشاهدة؟',
+        'ما هي طرق الدفع المتاحة لفتح محتوى الكورسات؟',
+      ];
+      faqs = faqs.where((f) => !hiddenFaqs.contains(f['question']?.toString().trim())).toList();
+    }
+
     // Filter FAQs based on search query
     final filteredFaqs = faqs.where((faq) {
       final q = (faq['question']?.toString() ?? '').toLowerCase();

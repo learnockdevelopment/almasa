@@ -71,7 +71,7 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
   void _navigateToTab(int targetIndex) {
     if (!_pageController.hasClients) return;
     final wp = Provider.of<WorkspaceProvider>(context, listen: false);
-    final showWallet = !wp.isGuest && (wp.activeWorkspace?.enablePurchasing ?? true);
+    final showWallet = !wp.isGuest && (wp.mobileAllowPaymentInApp);
     
     int pageIdx = targetIndex;
     if (!showWallet && targetIndex == 3) {
@@ -945,7 +945,7 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
 
     final List features = json.decode(workspace?.featuresJson ?? '[]');
 
-    final showWallet = !wp.isGuest && (wp.activeWorkspace?.enablePurchasing ?? true);
+    final showWallet = !wp.isGuest && (wp.mobileAllowPaymentInApp);
 
     Widget homeTab = Stack(
         children: [
@@ -1027,7 +1027,7 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
                         const SizedBox(height: 24),
                         
                         if (!isGuest) ...[
-                          if (workspace?.enablePurchasing ?? true)
+                          if (wp.mobileAllowPaymentInApp)
                             _buildHeaderBox(context, (lang.translate('wallet_balance') ?? 'رصيد المحفظة').toUpperCase(), "$walletBalance ${lang.translate('currency_le') ?? 'جنيه'}", Icons.account_balance_wallet_rounded, primaryColor, false, () {
                               _navigateToTab(2);
                             }),
@@ -1085,7 +1085,7 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
     final primary = theme.primaryColor;
-    final showWallet = !wp.isGuest && (wp.activeWorkspace?.enablePurchasing ?? true);
+    final showWallet = !wp.isGuest && (wp.mobileAllowPaymentInApp);
 
     int mappedIndex = _currentIndex;
     if (!showWallet && _currentIndex == 3) mappedIndex = 2; // adjust for hidden wallet
@@ -1271,7 +1271,7 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
               child: CourseCard(
                 course: course,
                 isEnrolled: true,
-                enablePurchasing: wp.activeWorkspace?.enablePurchasing ?? true,
+                allowPaymentInApp: wp.mobileAllowPaymentInApp,
                 isFavorite: wp.localFavoriteIds.contains(cid),
                 onTap: () {
                   if (cid > 0) Navigator.pushNamed(context, '/course', arguments: cid);
@@ -1325,7 +1325,7 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
               child: CourseCard(
                 course: course,
                 isEnrolled: isEnrolled,
-                enablePurchasing: wp.activeWorkspace?.enablePurchasing ?? true,
+                allowPaymentInApp: wp.mobileAllowPaymentInApp,
                 isFavorite: wp.localFavoriteIds.contains(cid),
                 onTap: () {
                   if (cid > 0) Navigator.pushNamed(context, '/course', arguments: cid);
@@ -1463,6 +1463,15 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
       ];
     }
 
+    // Hide payment / account-creation FAQs when in-app payment is disabled
+    if (!wp.mobileAllowPaymentInApp) {
+      const hiddenFaqs = [
+        'كيف أستطيع إنشاء حساب وبدء المشاهدة؟',
+        'ما هي طرق الدفع المتاحة لفتح محتوى الكورسات؟',
+      ];
+      faqs = faqs.where((f) => !hiddenFaqs.contains(f['question']?.toString().trim())).toList();
+    }
+
     final lang = Provider.of<LanguageProvider>(context, listen: false);
     final isRTL = lang.currentLocale.languageCode == 'ar';
 
@@ -1584,17 +1593,35 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
   }
 
   Widget _buildMiniStat(String label, String value, IconData icon, Color color) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final onSurface = Theme.of(context).colorScheme.onSurface;
     return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(color: Theme.of(context).cardColor, borderRadius: BorderRadius.circular(24), border: Border.all(color: Theme.of(context).dividerColor, width: 2)),
-      child: Row(
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 14),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [color.withOpacity(isDark ? 0.20 : 0.14), color.withOpacity(isDark ? 0.06 : 0.04)],
+        ),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: color.withOpacity(0.22), width: 1),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(padding: const EdgeInsets.all(8), decoration: BoxDecoration(color: color.withOpacity(0.08), borderRadius: BorderRadius.circular(12)), child: Icon(icon, color: color, size: 16)),
-          const SizedBox(width: 8),
-          Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text(label.toUpperCase(), style: TextStyle(color: color, fontSize: 8, fontWeight: FontWeight.w900, letterSpacing: 0.5)),
-            Text(value, style: TextStyle(color: color, fontSize: 18, fontWeight: FontWeight.w900)),
-          ])),
+          Container(
+            padding: const EdgeInsets.all(9),
+            decoration: BoxDecoration(
+              color: color,
+              borderRadius: BorderRadius.circular(14),
+              boxShadow: [BoxShadow(color: color.withOpacity(0.35), blurRadius: 12, offset: const Offset(0, 4))],
+            ),
+            child: Icon(icon, color: Colors.white, size: 18),
+          ),
+          const SizedBox(height: 14),
+          Text(value, style: TextStyle(color: onSurface, fontSize: 26, fontWeight: FontWeight.w900, height: 1.1)),
+          const SizedBox(height: 2),
+          Text(label, style: TextStyle(color: onSurface.withOpacity(0.55), fontSize: 11, fontWeight: FontWeight.w700)),
         ],
       ),
     );
@@ -1855,7 +1882,7 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
                     child: Text((lang.translate('account') ?? 'ACCOUNT & BILLING').toUpperCase(), style: TextStyle(color: onSurface.withOpacity(0.3), fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 1.5)),
                   ),
                   _buildSidebarAction(icon: Icons.person_rounded, title: lang.translate('profile'), onTap: () { Navigator.pop(context); if (wp.isGuest) Navigator.pushNamedAndRemoveUntil(context, '/onboarding', (r) => false); else _navigateToTab(3); }, wsColor: wsColor),
-                  if (workspace?.enablePurchasing ?? true)
+                  if (wp.mobileAllowPaymentInApp)
                     _buildSidebarAction(icon: Icons.account_balance_wallet_rounded, title: lang.translate('wallet_balance') ?? 'Academy Wallet', onTap: () { Navigator.pop(context); if (wp.isGuest) Navigator.pushNamedAndRemoveUntil(context, '/onboarding', (r) => false); else _navigateToTab(2); }, wsColor: wsColor),
                   const SizedBox(height: 24),
 

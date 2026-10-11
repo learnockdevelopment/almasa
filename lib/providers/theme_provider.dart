@@ -49,6 +49,8 @@ class ThemeProvider extends ChangeNotifier {
     }
   }
 
+  static final Color brandGreen = fromHSL(152, 65, 38);
+
   static Color fromHSL(double h, double s, double l) {
     return HSLColor.fromAHSL(1.0, h, s / 100, l / 100).toColor();
   }
@@ -157,17 +159,8 @@ class ThemeProvider extends ChangeNotifier {
 
 
   ThemeData _generateThemeData(bool isDark, String? themeName, String? themeColorHex) {
-    Color primary;
-    if (themeColorHex != null && themeColorHex.isNotEmpty) {
-      Color parsed = parseColorString(themeColorHex);
-      if (parsed != Colors.transparent) {
-        primary = parsed;
-      } else {
-        primary = _getPresetThemeColor(themeName) ?? (isDark ? fromHSL(230, 85, 60) : fromHSL(225, 80, 55));
-      }
-    } else {
-      primary = _getPresetThemeColor(themeName) ?? (isDark ? fromHSL(230, 85, 60) : fromHSL(225, 80, 55));
-    }
+    // App-wide brand color is fixed to green (ignores backend theme color)
+    final Color primary = brandGreen;
 
     Color scaffoldBg = isDark ? const Color(0xFF0F172A) : Colors.white; // Slate 900
     Color cardColor = isDark ? const Color(0xFF1E293B) : Colors.white; // Slate 800

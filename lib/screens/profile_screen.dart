@@ -304,7 +304,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
         padding: const EdgeInsets.all(20),
         child: Column(
           children: [
-            Center(
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.fromLTRB(20, 28, 20, 24),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(32),
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [primaryColor, Color.lerp(primaryColor, Colors.black, 0.35)!],
+                ),
+                boxShadow: [BoxShadow(color: primaryColor.withOpacity(0.30), blurRadius: 24, offset: const Offset(0, 10))],
+              ),
               child: Column(
                 children: [
                       GestureDetector(
@@ -320,7 +331,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               
                               return Container(
                                 padding: const EdgeInsets.all(3),
-                                decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: primaryColor.withOpacity(0.1), width: 2)),
+                                decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: Colors.white.withOpacity(0.9), width: 2.5)),
                                 child: CircleAvatar(
                                   radius: 40,
                                   backgroundColor: primaryColor,
@@ -351,9 +362,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ),
                       ),
                   const SizedBox(height: 16),
-                  Text(workspace?.studentName ?? lang.translate('student_Learnock'), style: TextStyle(color: onSurface, fontSize: 22, fontWeight: FontWeight.w900)),
-                  const SizedBox(height: 6),
-                  Container(padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6), decoration: BoxDecoration(color: primaryColor.withOpacity(0.08), borderRadius: BorderRadius.circular(100)), child: Text(workspace?.email ?? '', style: TextStyle(color: primaryColor, fontSize: 12, fontWeight: FontWeight.w900))),
+                  Text(workspace?.studentName ?? lang.translate('student_Learnock'), textAlign: TextAlign.center, style: const TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.w900)),
+                  const SizedBox(height: 8),
+                  Container(padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6), decoration: BoxDecoration(color: Colors.white.withOpacity(0.18), borderRadius: BorderRadius.circular(100)), child: Text(workspace?.email ?? '', style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w700))),
                 ],
               ),
             ),
@@ -374,8 +385,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             const SizedBox(height: 32),
             _buildSectionHeader(context, lang.translate('tech_info')),
             const SizedBox(height: 12),
-            _buildInfoCard(context, Icons.fingerprint_rounded, lang.translate('device_id'), wp.deviceId),
-            _buildInfoCard(context, Icons.info_outline_rounded, lang.translate('version'), '1.0.14'),
+            _buildInfoCard(context, Icons.info_outline_rounded, lang.translate('version'), '1.0.0'),
             const SizedBox(height: 40),
           ],
         ),
@@ -422,23 +432,79 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return Container(width: double.infinity, alignment: AlignmentDirectional.centerStart, child: Text(title.toUpperCase(), style: TextStyle(color: primaryColor, fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: 1.5)));
   }
 
+  Widget _buildActionTile(BuildContext context, {required IconData icon, required String label, required VoidCallback onTap, Color? color, bool filled = false}) {
+    final c = color ?? Theme.of(context).primaryColor;
+    final isRTL = Provider.of<LanguageProvider>(context, listen: false).currentLocale.languageCode == 'ar';
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(20),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          decoration: BoxDecoration(
+            color: filled ? c : Theme.of(context).cardColor,
+            borderRadius: BorderRadius.circular(20),
+            border: filled ? null : Border.all(color: c.withOpacity(0.18), width: 1),
+            boxShadow: [BoxShadow(color: c.withOpacity(filled ? 0.30 : 0.06), blurRadius: 14, offset: const Offset(0, 6))],
+          ),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(9),
+                decoration: BoxDecoration(color: filled ? Colors.white.withOpacity(0.2) : c.withOpacity(0.12), borderRadius: BorderRadius.circular(12)),
+                child: Icon(icon, size: 20, color: filled ? Colors.white : c),
+              ),
+              const SizedBox(width: 14),
+              Expanded(child: Text(label, style: TextStyle(color: filled ? Colors.white : Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.w800, fontSize: 14))),
+              Icon(isRTL ? Icons.chevron_left_rounded : Icons.chevron_right_rounded, color: filled ? Colors.white70 : c.withOpacity(0.6), size: 22),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _buildActionSection(BuildContext context, WorkspaceProvider wp, LanguageProvider lang) {
-    final primaryColor = Theme.of(context).primaryColor;
     return Column(
       children: [
-        if (wp.activeWorkspace?.enablePurchasing ?? true)
-          SizedBox(width: double.infinity, height: 56, child: ElevatedButton(onPressed: () => Navigator.pushNamed(context, '/wallet'), style: ElevatedButton.styleFrom(backgroundColor: primaryColor, foregroundColor: Colors.white, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)), elevation: 4, shadowColor: primaryColor.withOpacity(0.3)), child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [const Icon(Icons.stars_rounded, size: 20), const SizedBox(width: 10), Text((lang.translate('redeem_voucher') ?? 'CHARGE WALLET').toUpperCase(), style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 14, letterSpacing: 0.5))]))),
-        const SizedBox(height: 12),
-        InkWell(onTap: () => Navigator.pushNamed(context, '/favorites'), borderRadius: BorderRadius.circular(16), child: Container(height: 56, width: double.infinity, decoration: BoxDecoration(color: primaryColor.withOpacity(0.1), borderRadius: BorderRadius.circular(20)), child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [Icon(Icons.favorite_rounded, size: 20, color: primaryColor), const SizedBox(width: 10), Text((lang.translate('favorites') ?? 'FAVORITES').toUpperCase(), style: TextStyle(color: primaryColor, fontWeight: FontWeight.w900, fontSize: 14, letterSpacing: 0.5))]))),
-        const SizedBox(height: 12),
-        InkWell(onTap: () async { final nav = Navigator.of(context); final confirmed = await _showPremiumAlert(context, title: lang.translate('logout'), message: lang.translate('logout_confirm'), confirmText: lang.translate('logout'), cancelText: lang.translate('cancel'), isDestructive: true); if (confirmed == true) { showDialog(context: context, barrierDismissible: false, builder: (_) => const Center(child: CircularProgressIndicator())); try { await wp.logout(); } catch (_) {} nav.pushNamedAndRemoveUntil('/onboarding', (route) => false); } }, borderRadius: BorderRadius.circular(12), child: Container(padding: const EdgeInsets.symmetric(vertical: 12), width: double.infinity, child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [const Icon(Icons.logout_rounded, color: Color(0xFFEF4444), size: 18), const SizedBox(width: 10), Text(lang.translate('logout'), style: const TextStyle(color: Color(0xFFEF4444), fontWeight: FontWeight.w900, fontSize: 14))]))),
+        if (wp.mobileAllowPaymentInApp)
+          _buildActionTile(context, icon: Icons.account_balance_wallet_rounded, label: lang.translate('redeem_voucher') ?? 'Charge Wallet', filled: true, onTap: () => Navigator.pushNamed(context, '/wallet')),
+        _buildActionTile(context, icon: Icons.favorite_rounded, label: lang.translate('favorites') ?? 'Favorites', onTap: () => Navigator.pushNamed(context, '/favorites')),
+        _buildActionTile(
+          context,
+          icon: Icons.logout_rounded,
+          label: lang.translate('logout'),
+          color: const Color(0xFFEF4444),
+          onTap: () async {
+            final nav = Navigator.of(context);
+            final confirmed = await _showPremiumAlert(context, title: lang.translate('logout'), message: lang.translate('logout_confirm'), confirmText: lang.translate('logout'), cancelText: lang.translate('cancel'), isDestructive: true);
+            if (confirmed == true) {
+              showDialog(context: context, barrierDismissible: false, builder: (_) => const Center(child: CircularProgressIndicator()));
+              try { await wp.logout(); } catch (_) {}
+              nav.pushNamedAndRemoveUntil('/onboarding', (route) => false);
+            }
+          },
+        ),
       ],
     );
   }
 
   Widget _buildInfoCard(BuildContext context, IconData icon, String label, String value) {
     final primaryColor = Theme.of(context).primaryColor;
-    return Container(margin: const EdgeInsets.only(bottom: 10), padding: const EdgeInsets.all(16), decoration: BoxDecoration(color: primaryColor.withOpacity(0.05), borderRadius: BorderRadius.circular(20), border: Border.all(color: primaryColor.withOpacity(0.05), width: 1)), child: Row(children: [Icon(icon, color: primaryColor.withOpacity(0.4), size: 18), const SizedBox(width: 16), Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(label.toUpperCase(), style: TextStyle(color: primaryColor.withOpacity(0.5), fontSize: 9, fontWeight: FontWeight.w900, letterSpacing: 0.5)), Text(value, style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.w900, fontSize: 13))]))]));
+    final onSurface = Theme.of(context).colorScheme.onSurface;
+    return Container(
+      margin: const EdgeInsets.only(bottom: 10),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(color: Theme.of(context).cardColor, borderRadius: BorderRadius.circular(20), border: Border.all(color: primaryColor.withOpacity(0.12), width: 1)),
+      child: Row(
+        children: [
+          Container(padding: const EdgeInsets.all(9), decoration: BoxDecoration(color: primaryColor.withOpacity(0.12), borderRadius: BorderRadius.circular(12)), child: Icon(icon, color: primaryColor, size: 18)),
+          const SizedBox(width: 14),
+          Expanded(child: Text(label, style: TextStyle(color: onSurface.withOpacity(0.6), fontSize: 13, fontWeight: FontWeight.w700))),
+          Text(value, style: TextStyle(color: onSurface, fontWeight: FontWeight.w900, fontSize: 14)),
+        ],
+      ),
+    );
   }
 }
-
